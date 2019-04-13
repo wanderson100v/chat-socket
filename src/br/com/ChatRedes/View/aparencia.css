@@ -1,0 +1,59 @@
+
+/*Imports*/
+@import url('https://fonts.googleapis.com/css?family=Cinzel:400,700');
+@import url('https://fonts.googleapis.com/css?family=Arvo:400,700');
+
+/*Classes*/
+.principal{
+	
+	-fx-pref-width: 500.0;
+	-fx-pref-height: 500.0;
+	-fx-background-color: #ED6E0B; /*Cor de Fundo*/
+	
+}
+
+.corpo{
+		
+	-fx-pref-height: 500.0;
+	-fx-padding: 10.0, 10.0;
+	-fx-spacing: 10.0;
+}
+
+.container-horizontal{
+	
+	-fx-alignment: center_left;
+	-fx-spacing: 10.0;
+	
+}
+
+.container-vertical{
+	
+	-fx-alignment: top_left;
+	-fx-spacing: 10.0;
+	
+}
+
+.texto-principal{
+	
+	-fx-font-size: 23.0px;
+    -fx-font-family: 'Cinzel', serif;
+    -fx-text-fill: white;
+    /*-fx-font-style: bold;*/
+    
+}
+
+.caixa-texto{
+	
+	-fx-font-size: 14.0px;
+    -fx-font-family: 'Arvo', serif;
+    -fx-text-fill: black;
+	
+}
+
+.texto-componetes{
+	
+	-fx-font-size: 14.0px;
+	-fx-font-family: 'Cinzel', serif;
+    -fx-text-fill: black;
+	/*-fx-font-style: bold;*/
+}
