@@ -6,6 +6,7 @@ package br.com.ChatRedes.Controle;
 import java.net.URL;
 import java.util.ResourceBundle;
 
+import br.com.ChatRedes.View.Notificacao;
 import javafx.fxml.Initializable;
 
 /**
@@ -14,9 +15,12 @@ import javafx.fxml.Initializable;
  */
 public abstract class Controle implements Initializable {
 
+	protected Notificacao notificacao;
+	
 	@Override
 	public void initialize(URL location, ResourceBundle resources) {
 		init();
+		notificacao = Notificacao.getInstance();
 	}
 
 	/**

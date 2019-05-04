@@ -15,13 +15,13 @@ import javafx.scene.input.KeyEvent;
  * @author mael santos
  *
  */
-public class ControleChat extends Controle {
+public class ControleServidor extends Controle {
 
 	@FXML
     private Label lblEstado;
 
-    @FXML
-    private TextArea txa;
+	@FXML
+    private TextArea txaMensagens;
 
     @FXML
     private TextField tfdMensagem;

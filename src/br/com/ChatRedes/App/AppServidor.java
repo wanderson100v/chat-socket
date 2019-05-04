@@ -20,13 +20,12 @@ public class AppServidor extends Application {
 	public void start(Stage primaryStage) {
 		
 		try {
-			chat = FXMLLoader.load(getClass().getClassLoader().getResource("br/com/ChatRedes/View/Chat.fxml"));
+			chat = FXMLLoader.load(getClass().getClassLoader().getResource("br/com/ChatRedes/View/LoginServidor.fxml"));
 			sceneChat = new Scene(chat);
 			
 			primaryStage.setScene(sceneChat);
 			primaryStage.setTitle("ChatRedes");
 //			primaryStage.getIcons().add(new Image(""));
-			primaryStage.setResizable(false);
 			primaryStage.centerOnScreen();
 			primaryStage.show();
 			
