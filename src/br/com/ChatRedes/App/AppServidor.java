@@ -13,18 +13,21 @@ import javafx.stage.Stage;
  */
 public class AppServidor extends Application {
 
-	private Pane chat;
-	private Scene sceneChat;
+	private Pane servidor;
+	private Scene sceneServidor;
+	private static Stage stage;
 	
 	@Override
 	public void start(Stage primaryStage) {
+		this.stage = primaryStage;
 		
 		try {
-			chat = FXMLLoader.load(getClass().getClassLoader().getResource("br/com/ChatRedes/View/LoginServidor.fxml"));
-			sceneChat = new Scene(chat);
+			servidor = FXMLLoader.load(getClass().getClassLoader().getResource("br/com/ChatRedes/View/LoginServidor.fxml"));
+			sceneServidor = new Scene(servidor);
 			
-			primaryStage.setScene(sceneChat);
-			primaryStage.setTitle("ChatRedes");
+			primaryStage.setScene(sceneServidor);
+			primaryStage.setTitle("Servidor");
+			primaryStage.setResizable(false);
 //			primaryStage.getIcons().add(new Image(""));
 			primaryStage.centerOnScreen();
 			primaryStage.show();
@@ -36,10 +39,19 @@ public class AppServidor extends Application {
 	}
 
 	/**
+	 * <p>Troca os panes da tela</p>
+	 * @param pane
+	 */
+	public static void changeStage(Pane pane) {
+		stage.setScene(new Scene(pane));
+	}
+	
+	/**
 	 * @param args
 	 * <p>Main Servidor</p>
 	 */
 	public static void main(String[] args) {
 		launch(args);
 	}
+	
 }
