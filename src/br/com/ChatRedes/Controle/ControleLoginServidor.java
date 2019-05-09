@@ -1,10 +1,6 @@
 package br.com.ChatRedes.Controle;
 
-import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.PrintWriter;
-import java.net.Socket;
 
 import br.com.ChatRedes.App.AppServidor;
 import br.com.ChatRedes.Model.Servidor;

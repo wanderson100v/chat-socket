@@ -3,15 +3,8 @@
  */
 package br.com.ChatRedes.Controle;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.PrintWriter;
-import java.net.Socket;
-
 import br.com.ChatRedes.Model.Servidor;
-import javafx.application.Platform;
-import javafx.concurrent.Service;
+import br.com.ChatRedes.Model.Enum.Conexao;
 import javafx.concurrent.Task;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -22,7 +15,7 @@ import javafx.scene.control.TextField;
 import javafx.scene.input.KeyEvent;
 
 /**
- * @author mael santos
+ * @author Mael Santos
  *
  */
 public class ControleServidor extends Controle {
@@ -39,48 +32,28 @@ public class ControleServidor extends Controle {
 	@FXML
 	private Button btnEnviar;
 
-	private static Service<Object> service;
 	private static Servidor servidor;
 
 	@Override
 	public void init() {
 
-		new Thread(new Task<Object>() {
-
+		new Thread(new Task<Object>() {//thread responsavel por receber mensagens dos clientes
 			@Override
 			protected Object call() throws Exception {
 				while (true) {
 
-					System.out.println("Esperando...");
-					Socket socket = servidor.ouvir();
-					System.out.println("Ouve uma requisição");
-					System.out.println("Dados do socket: "+ socket.toString());
+					servidor.ouvir();//esperando requisições
 
-					//Entrada de dado...(Thread separada)
-					new Thread(() -> {
-						try {
-							BufferedReader entrada = new BufferedReader(
-									new InputStreamReader(
-											socket.getInputStream()
-											)
-									);
-							PrintWriter saida = new PrintWriter(socket.getOutputStream(), true);
-
-							String linha; 
-							while((linha = entrada.readLine()) != null){
-								System.out.println("Cliente ("+ socket.toString()+") Disse >>>" + linha);
-								saida.println("Olá, eu recebi a sua mensagem. (" + linha + ")");
-								txaMensagens.setText(txaMensagens.getText()+"\n"+"Cliente ("+ socket.toString()+") Disse >>>" + linha);
-							}
-							entrada.close();
-						} catch (IOException e) {
-							e.printStackTrace();
-						}
-					}).start();
+					String linha; 
+					while((linha = servidor.trasmitir()) != null){//verificando se há mensagens
+						txaMensagens.setText(txaMensagens.getText()+"Cliente: " + linha+"\n");//exibidindo as mensagens
+					}
+					servidor.encerrar();//encerrando o servidor
 				}
 			}
-		}).start();
+		}).start();//inicia a thread responsavel por receber e exibir as mensagens dos clientes
 
+		lblEstado.setText(Conexao.CONECTADO+"");//modifica o estado para conectado
 	}
 
 	/**
@@ -90,7 +63,13 @@ public class ControleServidor extends Controle {
 	@FXML
 	void clickAction(ActionEvent event) {
 
-		System.out.println("Click");
+		Object obj = event.getSource();//componente que disparou a ação
+
+		if(obj == btnEnviar)
+		{
+			servidor.falar(tfdMensagem.getText().trim());//envia a mensagem digitada
+			tfdMensagem.setText("");
+		}
 
 	}
 

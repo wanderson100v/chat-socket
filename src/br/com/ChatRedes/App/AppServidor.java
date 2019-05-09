@@ -19,7 +19,7 @@ public class AppServidor extends Application {
 	
 	@Override
 	public void start(Stage primaryStage) {
-		this.stage = primaryStage;
+		stage = primaryStage;
 		
 		try {
 			servidor = FXMLLoader.load(getClass().getClassLoader().getResource("br/com/ChatRedes/View/LoginServidor.fxml"));
