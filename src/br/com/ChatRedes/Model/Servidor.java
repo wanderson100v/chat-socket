@@ -15,20 +15,12 @@ import java.net.Socket;
  *
  */
 
-public class Servidor {
+public class Servidor extends Conexao{
 
 	private ServerSocket serverSocket;
 	private int porta;
 	private String nome;
 	
-	/*
-	 * Variavel responsavel por receber os dados
-	 */
-	private BufferedReader entrada;
-	/*
-	 * Variavel resposavel por enviar dados
-	 */
-	private PrintWriter saida;
 	
 	/**
 	 * <p>Servidor responsavel por centralizar a troca de informações</p>
@@ -63,45 +55,6 @@ public class Servidor {
 		}
 	}
 
-	/**
-	 * <p>Transmite as mensagens recebidas pelos clientes<p/>
-	 * @return mensagem enviada pelo cliente
-	 */
-	public String trasmitir()
-	{
-		String linha = null;
-		try {
-			linha = entrada.readLine();
-		} catch (IOException e) {
-			System.err.println("Erro ao Trasmitir Mensagens");
-			e.printStackTrace();
-		}
-		
-		return linha;
-	}
-	
-	/**
-	 * <p>Envia mensagens para os clientes pelo canal aberto (publico)<p/> 
-	 * @param fala
-	 */
-	public void falar(String fala)
-	{
-		saida.println(fala);
-	}
-	
-	/**
-	 * <p>Encerra os canais de entrada e saida<p/>
-	 */
-	public void encerrar()
-	{
-		try {
-			entrada.close();
-			saida.close();
-		} catch (IOException e) {
-			System.err.println("Erro ao Encerrar Servidor");
-			e.printStackTrace();
-		}
-	}
 	
 	/**
 	 * @return porta ao qual esta conectado

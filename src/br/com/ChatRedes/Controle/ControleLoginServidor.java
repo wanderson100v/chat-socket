@@ -42,8 +42,8 @@ public class ControleLoginServidor extends Controle{
     	{
     		servidor = new Servidor(Integer.parseInt(tfdPorta.getText().trim()), tfdNome.getText().trim());
     		try {
-    			paneServidor = FXMLLoader.load(getClass().getClassLoader().getResource("br/com/ChatRedes/View/Servidor.fxml"));
     			ControleServidor.iniciarServidor(servidor);
+    			paneServidor = FXMLLoader.load(getClass().getClassLoader().getResource("br/com/ChatRedes/View/Servidor.fxml"));
     			AppServidor.changeStage(paneServidor);
     		} catch (IOException e) {
     			System.err.println("Erro ao iniciar servidor: localização - ControleLoginServidor.clickAction()");

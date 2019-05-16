@@ -12,6 +12,7 @@ import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
+import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 
 /**
@@ -46,7 +47,7 @@ public class ControleServidor extends Controle {
 
 					String linha; 
 					while((linha = servidor.trasmitir()) != null){//verificando se há mensagens
-						txaMensagens.setText(txaMensagens.getText()+"Cliente: " + linha+"\n");//exibidindo as mensagens
+						txaMensagens.setText(txaMensagens.getText()+linha+"\n");//exibidindo as mensagens
 					}
 					servidor.encerrar();//encerrando o servidor
 				}
@@ -67,8 +68,7 @@ public class ControleServidor extends Controle {
 
 		if(obj == btnEnviar)
 		{
-			servidor.falar(tfdMensagem.getText().trim());//envia a mensagem digitada
-			tfdMensagem.setText("");
+			enviarMensagem();
 		}
 
 	}
@@ -79,18 +79,35 @@ public class ControleServidor extends Controle {
 	 */
 	@FXML
 	void inputAction(KeyEvent event) {
-
-		System.out.println("Digitando...");
-
+		
+		if (event.getCode() == KeyCode.ENTER) {
+			if(!tfdMensagem.getText().trim().equals(""))
+				enviarMensagem();
+		}
 	}
 
 	/**
-	 * @return the servidor
+	 * 
 	 */
+	private void enviarMensagem() {
+		
+		String mensagem = servidor.getNome()+": "+tfdMensagem.getText().trim();
+		servidor.falar(mensagem);//envia a mensagem digitada
+		txaMensagens.setText(txaMensagens.getText() + mensagem + "\n");//atualiza as mensagens
+		tfdMensagem.setText("");
+	}
+
 	/**
 	 * @param servidor the servidor to set
 	 */
 	public static void iniciarServidor(Servidor servidor) {
 		ControleServidor.servidor = servidor;
+	}
+	
+	/**
+	 * @return the servidor
+	 */
+	public static Servidor getServidor() {
+		return servidor;
 	}
 }
