@@ -3,24 +3,22 @@ package br.com.ChatRedes.Controle;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
+import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
 
 public class ControleLoginCliente extends Controle{
 
-    @FXML
-    private TextField tfdPorta;
+	@FXML
+	private TextField tfdLogin;
 
-    @FXML
-    private TextField tfdHost;
+	@FXML
+	private PasswordField tfdSenha;
 
-    @FXML
-    private TextField tfdNome;
+	@FXML
+	private Button btnEntrar;
 
-    @FXML
-    private Button btnEntrar;
-
-    @FXML
-    private Button btnCancelar;
+	@FXML
+	private Button btnCancelar;
 
 	@Override
 	public void init() {
