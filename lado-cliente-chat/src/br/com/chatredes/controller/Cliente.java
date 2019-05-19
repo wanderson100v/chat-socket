@@ -49,9 +49,12 @@ public class Cliente {
 	// métodos para requisitar ao servidor
 
 	public void protocoloCNU(String login, String senha) {
-		requisicaoServidor.print("CNU\r\nlogin:"+login+"\r\n"+"senha:"+login+"\r\n\r\n");
+		requisicaoServidor.print(
+				"CNU\r\n"
+				+ "login:"+login+"\r\n"
+				+"senha:"+login+"\r\n"
+				+ "\r\n");
 		System.out.println("Cliente: Mandarei dados para o servidor");
-		requisicaoServidor.flush();
 	}
 	
 	public void protocoloLOGIN(String login, String senha) {
@@ -99,13 +102,23 @@ public class Cliente {
 		@Override
 		public void run() {
 			try {
+				
 				Scanner respostaServidor = new Scanner(socket.getInputStream());
 				iniciarTratamentoProtocolos();
-				while(respostaServidor.hasNextLine()) {
-					String[] resposta = respostaServidor.nextLine().split("\r\n");
-					protocolos.get(resposta[0].split("/")[0]).executarProtocolo(resposta);
+				StringBuffer protocoloCompleto = new StringBuffer();
+				while(respostaServidor.hasNextLine()) { 
+					String linha = respostaServidor.nextLine();
+					if(linha.equals("")) { 
+						String[] requisicao = protocoloCompleto.toString().split("\n");
+						Protocolo protocolo = protocolos.get(requisicao[0]);
+						if(protocolo != null)
+							protocolo.executarProtocolo(requisicao);
+						protocoloCompleto = new StringBuffer();
+					}else 
+						protocoloCompleto.append(linha+"\n");
 				}
-			
+				
+				protocolos.clear();
 			} catch (IOException e) {
 				e.printStackTrace();
 			}

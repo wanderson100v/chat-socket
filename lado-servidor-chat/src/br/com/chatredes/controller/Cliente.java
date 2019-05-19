@@ -30,17 +30,19 @@ public class Cliente implements Runnable {
 			this.respostasCliente = new PrintStream(socket.getOutputStream(), false);
 			Scanner requisicoesCliente = new Scanner(socket.getInputStream());
 			iniciarTratamentoProtocolos();
+			StringBuffer protocoloCompleto = new StringBuffer();
 			// método hasNextLine() é bloqueante, dessa forma o laço fica parado até o cliente enviar uma requisição
 			while(requisicoesCliente.hasNextLine()) { // enquanto o cliente estiver requisitando
-				// vetor onde cada index é uma linha do protocolo de requisição enviado pelo cliente.
-				System.out.println(Arrays.deepToString(requisicoesCliente.nextLine().split("\n")));
-				/*String requisicao = requisicoesCliente.nextLine();
-				System.out.println("Recebendo dados do cliente");
-				System.out.println(Arrays.toString(requisicao));
-				//pegando no mapa de protocolos o protocolo que o cabeçario corresponde e pedindo para o mesmo tratar a requisiçõ
-				System.out.println(protocolos);
-				protocolos.get
-				protocolos.get(requisicao[0]).executarProtocolo(requisicao);*/
+				String linha = requisicoesCliente.nextLine();
+				if(linha.equals("")) { // sgnifica que requisição chegou totalmente
+					String[] requisicao = protocoloCompleto.toString().split("\n");
+					//pegando no mapa de protocolos o protocolo que o cabeçario corresponde e pedindo para o mesmo tratar a requisiçõ
+					Protocolo protocolo = protocolos.get(requisicao[0]);
+					if(protocolo != null)
+						protocolo.executarProtocolo(requisicao);
+					protocoloCompleto = new StringBuffer();
+				}else // se não significa faltar mais linhas
+					protocoloCompleto.append(linha+"\n");
 			}
 			
 			protocolos.clear();
@@ -68,7 +70,8 @@ public class Cliente implements Runnable {
 	
 	public void protocoloCNU() {
 		protocolos.put("CNU",(String[] requisicao)->{
-			System.out.println(requisicao);
+			System.out.println("Executando o protocolo CNU em uma lambda");
+			System.out.println(Arrays.toString(requisicao));
 		});
 	}
 	
