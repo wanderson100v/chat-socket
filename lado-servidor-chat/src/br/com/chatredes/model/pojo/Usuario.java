@@ -33,6 +33,12 @@ public class Usuario extends Entidade{
 		this.nome = nome;
 	}
 	
+	public Usuario(String nome, String login, String senha) {
+		this.senha = senha;
+		this.login = login;
+		this.nome = nome;
+	}
+	
 	public Usuario() {}
 	
 	public String getSenha() {

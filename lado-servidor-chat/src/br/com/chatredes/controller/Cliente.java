@@ -9,11 +9,17 @@ import java.util.Scanner;
 
 import com.sun.xml.internal.bind.v2.runtime.unmarshaller.XsiNilLoader.Array;
 
+import br.com.chatredes.model.dao.DaoUsuario;
+import br.com.chatredes.model.excecoes.DaoException;
+import br.com.chatredes.model.pojo.Usuario;
+
 public class Cliente implements Runnable {
 	
 	private Socket socket;
 	
 	private HashMap<String,Protocolo> protocolos;
+	
+	private DaoUsuario daoUsuario;
 	
 	//meio para mandar respostas para cliente.
 	private PrintStream respostasCliente;
@@ -21,7 +27,7 @@ public class Cliente implements Runnable {
 	public Cliente(Socket socket) {
 		this.socket = socket;
 		this.protocolos = new HashMap<>();
-		
+		daoUsuario = new DaoUsuario();
 	}
 
 	@Override
@@ -70,14 +76,47 @@ public class Cliente implements Runnable {
 	
 	public void protocoloCNU() {
 		protocolos.put("CNU",(String[] requisicao)->{
-			System.out.println("Executando o protocolo CNU em uma lambda");
-			System.out.println(Arrays.toString(requisicao));
+			for (int i = 0; i < requisicao.length; i++) {
+				System.out.println(requisicao[i]);
+			}
+			try {
+				daoUsuario.cadastrar(new Usuario(requisicao[1], requisicao[2], requisicao[3]));
+				
+				respostasCliente.print(
+						"LOGIN\r\n"
+						+ "02 SUC\r\n"
+								+ "\r\n");
+				
+			} catch (DaoException e) {
+				respostasCliente.print(
+						"LOGIN\r\n"
+						+ "03 EXE\r\n"
+								+ "\r\n");
+			}
 		});
 	}
 	
 	public void protocoloLOGIN() {
 		protocolos.put("LOGIN",(String[] requisicao)->{
-			
+			try {
+				Usuario usuario = daoUsuario.login(requisicao[1], requisicao[2]);
+				if(usuario != null) {
+					respostasCliente.print(
+							"LOGIN\r\n"
+							+ "02 SUC\r\n"
+									+ "\r\n");
+				}
+				else
+					respostasCliente.print(
+							"LOGIN\r\n"
+							+ " 01 ERRO\r\n"
+									+ "\r\n");
+			} catch (DaoException e) {
+				respostasCliente.print(
+						"LOGIN\r\n"
+						+ "03 EXE\r\n"
+								+ "\r\n");
+			}
 		});
 	}
 	

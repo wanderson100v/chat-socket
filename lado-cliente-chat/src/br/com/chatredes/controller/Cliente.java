@@ -6,6 +6,9 @@ import java.net.Socket;
 import java.util.HashMap;
 import java.util.Scanner;
 
+import br.com.chatredes.util.Mensagem;
+import javafx.application.Platform;
+
 public class Cliente {
 	
 	private static Cliente instance;
@@ -21,6 +24,8 @@ public class Cliente {
 	private PrintStream requisicaoServidor;	
 	
 	private HashMap<String,Protocolo> protocolos;
+	
+	private Mensagem mensagem;
 
 	private Cliente() {
 		protocolos = new HashMap<>();
@@ -48,17 +53,22 @@ public class Cliente {
 	
 	// métodos para requisitar ao servidor
 
-	public void protocoloCNU(String login, String senha) {
+	public void protocoloCNU(String nome, String login, String senha) {
 		requisicaoServidor.print(
 				"CNU\r\n"
-				+ "login:"+login+"\r\n"
-				+"senha:"+login+"\r\n"
+				+nome+"\r\n"
+				+login+"\r\n"
+				+senha+"\r\n"
 				+ "\r\n");
-		System.out.println("Cliente: Mandarei dados para o servidor");
 	}
 	
 	public void protocoloLOGIN(String login, String senha) {
-
+		
+		requisicaoServidor.print(
+				"LOGIN\r\n"
+				+ login +"\r\n"
+				+ senha+"\r\n" 
+				+ "\r\n");
 	}
 	
 	public void protocoloLOGOUT() {
@@ -139,59 +149,67 @@ public class Cliente {
 	
 	public void protocoloRespostaCNU() {
 		protocolos.put("CNU",(String[] resposta)->{
-			
-			
+			tratarResposta(resposta);
 		});
 	}
 	
 	public void protocoloRespostaLOGIN() {
 		protocolos.put("LOGIN",(String[] resposta)->{
-			
-			
+			tratarResposta(resposta);
 		});
 	}
 	
 	public void protocoloRespostaLOGOUT() {
 		protocolos.put("LOGOUT",(String[] resposta)->{
-			
-			
+			tratarResposta(resposta);
 		});
 	}
 	
 	public void protocoloRespostaUSERS() {
 		protocolos.put("USERS",(String[] resposta)->{
-			
-			
+			tratarResposta(resposta);
 		});
 	}
 	
 	public void protocoloRespostaMSG() {
 		protocolos.put("MSG",(String[] resposta)->{
-			
-			
+			tratarResposta(resposta);
 		});
 	}
 	
 	public void protocoloRespostaDIGIT() {
 		protocolos.put("DIGIT",(String[] resposta)->{
-			
-			
+			tratarResposta(resposta);
 		});
 	}
 	
 	public void protocoloRespostaVISU() {
 		protocolos.put("VISU",(String[] resposta)->{
-			
-			
+			tratarResposta(resposta);
 		});
 	}
 	
 	public void protocoloRespostaNDIGIT() {
 		protocolos.put("NDIGIT",(String[] resposta)->{
-			
-			
+			tratarResposta(resposta);
 		});
 	}
 	
+	private void tratarResposta(String[] resposta){
+
+		if(resposta[1].equals("02 SUC"))
+			mensagem = Mensagem.SUCESSO;
+		else if(resposta[1].equals("01 ERRO"))
+			mensagem = Mensagem.FALHA;
+		else if(resposta[1].equals("03 EXE"))
+			mensagem = Mensagem.EXCECAO;
+
+	}
+	
+	public Mensagem getMensagem() {
+		Mensagem temp = mensagem;
+		mensagem = null;
+		return temp;
+	}
 	
 }

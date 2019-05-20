@@ -15,7 +15,7 @@
 <?import javafx.scene.layout.RowConstraints?>
 <?import javafx.scene.layout.VBox?>
 
-<AnchorPane prefWidth="537.0" styleClass="principal" stylesheets="@aparencia.css" xmlns="http://javafx.com/javafx/8.0.171" xmlns:fx="http://javafx.com/fxml/1" fx:controller="br.com.ChatRedes.Controle.ControleLoginCliente">
+<AnchorPane prefWidth="537.0" styleClass="principal" stylesheets="@aparencia.css" xmlns="http://javafx.com/javafx/8.0.171" xmlns:fx="http://javafx.com/fxml/1" fx:controller="br.com.chatredes.controller.ControleLoginCliente">
    <children>
       <BorderPane prefHeight="200.0" prefWidth="500.0" styleClass="corpo" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
          <center>
@@ -59,6 +59,18 @@
                         <ImageView fitHeight="37.5" fitWidth="50.0" pickOnBounds="true" preserveRatio="true">
                            <image>
                               <Image url="@Icons/checked.png" />
+                           </image>
+                        </ImageView>
+                     </graphic>
+                  </Button>
+                  <Button fx:id="btnCadastrar" mnemonicParsing="false" onAction="#clickAction" styleClass="texto-componetes">
+                     <tooltip>
+                        <Tooltip text="Cadastrar" />
+                     </tooltip>
+                     <graphic>
+                        <ImageView fitHeight="37.5" fitWidth="50.0" pickOnBounds="true" preserveRatio="true">
+                           <image>
+                              <Image url="@icons/add.png" />
                            </image>
                         </ImageView>
                      </graphic>

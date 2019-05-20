@@ -3,6 +3,7 @@
  */
 package br.com.chatredes.model.dao;
 
+import br.com.chatredes.model.excecoes.DaoException;
 import br.com.chatredes.model.pojo.Usuario;
 
 /**
@@ -11,4 +12,6 @@ import br.com.chatredes.model.pojo.Usuario;
  */
 public interface IDaoUsuario extends IDao<Usuario> {
 
+	public Usuario login(String login, String senha) throws DaoException;
+	
 }
