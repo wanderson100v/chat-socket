@@ -7,7 +7,6 @@ import java.util.HashMap;
 import java.util.Scanner;
 
 import br.com.chatredes.util.Mensagem;
-import javafx.application.Platform;
 
 public class Cliente {
 	
@@ -195,21 +194,30 @@ public class Cliente {
 		});
 	}
 	
-	private void tratarResposta(String[] resposta){
-
-		if(resposta[1].equals("02 SUC"))
+	private synchronized void tratarResposta(String[] resposta){
+		
+		if(resposta[1].equals("02 SUC")) {
 			mensagem = Mensagem.SUCESSO;
-		else if(resposta[1].equals("01 ERRO"))
+			mensagem.setProtocoloCompleto(resposta);
+		}else if(resposta[1].equals("01 ERRO"))
 			mensagem = Mensagem.FALHA;
 		else if(resposta[1].equals("03 EXE"))
 			mensagem = Mensagem.EXCECAO;
+		System.out.println("Resposta chegou irei mandar o getMensagem sair do wait");
+		notifyAll();
 
 	}
 	
-	public Mensagem getMensagem() {
-		Mensagem temp = mensagem;
-		mensagem = null;
-		return temp;
+	public synchronized Mensagem getMensagem() {
+		if(mensagem == null)
+			try {
+				System.out.println("Ainda sou nulo estou indo esperar");
+				wait();
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			}
+		System.out.println("Não sou mais nulo posso retornar");
+		return mensagem;
 	}
 	
 }

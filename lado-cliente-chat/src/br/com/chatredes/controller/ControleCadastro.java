@@ -4,6 +4,7 @@ import java.io.IOException;
 
 import br.com.chatredes.app.AppCliente;
 import br.com.chatredes.util.Mensagem;
+import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -50,18 +51,22 @@ public class ControleCadastro extends Controle{
 				cliente.protocoloCNU(tfdNome.getText().trim(), tfdLogin.getText().trim(), tfdSenha.getText().trim());
 
 				notificacao.mensagemAguarde();
-
-				if(cliente.getMensagem() == Mensagem.SUCESSO)
-				{
-					notificacao.mensagemSucesso();
-					voltar();
-				}
-				else
-					notificacao.mensagemErro();
+				new Thread(()-> {
+					Mensagem mensagem = cliente.getMensagem();
+		    		Platform.runLater(()->{ 
+		    			if(mensagem == Mensagem.SUCESSO)
+						{
+							notificacao.mensagemSucesso();
+							voltar();
+						}
+						else
+							notificacao.mensagemErro();
+			    	});
+				}).start();
 			}
 			else
 				notificacao.mensagemErro();
-
+			
 		}
 		else if(obj == btnCancelar)
 		{

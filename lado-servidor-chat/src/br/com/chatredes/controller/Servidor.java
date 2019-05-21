@@ -3,8 +3,11 @@ package br.com.chatredes.controller;
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.util.Vector;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+
+import br.com.chatredes.model.pojo.Usuario;
 
 public class Servidor extends Thread{
 	
@@ -26,6 +29,7 @@ public class Servidor extends Thread{
 	public static Servidor getInstance() throws IOException {
 		if(instance == null) {
 			instance = new Servidor();
+	
 		}
 		return instance;
 	}
@@ -45,7 +49,6 @@ public class Servidor extends Thread{
 	 */
 	@Override
 	public void run() {
-		
 		while(true) {
 			try {
 				// cliente criou uma ligação com a porta. essa ligação é aceita, e aguardará o 
@@ -59,4 +62,5 @@ public class Servidor extends Thread{
 		}
 		
 	}
+	
 }

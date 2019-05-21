@@ -4,6 +4,7 @@ import java.io.IOException;
 
 import br.com.chatredes.app.AppCliente;
 import br.com.chatredes.util.Mensagem;
+import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -45,22 +46,25 @@ public class ControleLoginCliente extends Controle{
 		if(obj == btnEntrar)
 		{
 			cliente.protocoloLOGIN(tfdLogin.getText(), tfdSenha.getText());
-			try {
-
-				notificacao.mensagemAguarde();
-
-				if(cliente.getMensagem() == Mensagem.SUCESSO)
-				{
-					paneCliente = FXMLLoader.load(getClass().getClassLoader().getResource("br/com/chatredes/view/Cliente.fxml"));
-					AppCliente.changeStage(paneCliente);
-				}
-				else
-					notificacao.mensagemErro();
-
-			} catch (IOException e) {
-				System.err.println("Erro ao iniciar servidor: localização - ControleLoginServidor.clickAction()");
-			}
-
+			notificacao.mensagemAguarde();
+			new Thread(()-> {
+				Mensagem mensagem = cliente.getMensagem();
+	    		Platform.runLater(()->{ 
+		    		if(mensagem == Mensagem.SUCESSO)
+					{
+		    			try {
+							paneCliente = FXMLLoader.load(getClass().getClassLoader().getResource("br/com/chatredes/view/Cliente.fxml"));
+						} catch (IOException e) {
+							System.err.println("Erro ao iniciar servidor: localização - ControleLoginServidor.clickAction()");
+						}
+						notificacao.mensagemSucesso();
+		    			AppCliente.changeStage(paneCliente);
+					}
+					else
+						notificacao.mensagemErro();
+		    	});
+			}).start();
+			
 		}
 		else if(obj == btnCadastrar)
 		{

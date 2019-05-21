@@ -6,6 +6,7 @@ import java.net.Socket;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Scanner;
+import java.util.Vector;
 
 import com.sun.xml.internal.bind.v2.runtime.unmarshaller.XsiNilLoader.Array;
 
@@ -21,13 +22,19 @@ public class Cliente implements Runnable {
 	
 	private DaoUsuario daoUsuario;
 	
+	private static Vector<Cliente> clientesLogados;
+	
+	private Usuario usuario;
+	
 	//meio para mandar respostas para cliente.
 	private PrintStream respostasCliente;
 	
 	public Cliente(Socket socket) {
 		this.socket = socket;
 		this.protocolos = new HashMap<>();
-		daoUsuario = new DaoUsuario();
+		this.clientesLogados = new Vector<Cliente>();
+		this.daoUsuario = new DaoUsuario();
+		
 	}
 
 	@Override
@@ -83,13 +90,13 @@ public class Cliente implements Runnable {
 				daoUsuario.cadastrar(new Usuario(requisicao[1], requisicao[2], requisicao[3]));
 				
 				respostasCliente.print(
-						"LOGIN\r\n"
+						"CNU\r\n"
 						+ "02 SUC\r\n"
 								+ "\r\n");
 				
 			} catch (DaoException e) {
 				respostasCliente.print(
-						"LOGIN\r\n"
+						"CNU\r\n"
 						+ "03 EXE\r\n"
 								+ "\r\n");
 			}
@@ -99,8 +106,9 @@ public class Cliente implements Runnable {
 	public void protocoloLOGIN() {
 		protocolos.put("LOGIN",(String[] requisicao)->{
 			try {
-				Usuario usuario = daoUsuario.login(requisicao[1], requisicao[2]);
-				if(usuario != null) {
+				this.usuario = daoUsuario.login(requisicao[1], requisicao[2]);
+				if(this.usuario != null) {
+					clientesLogados.add(this);
 					respostasCliente.print(
 							"LOGIN\r\n"
 							+ "02 SUC\r\n"
@@ -117,6 +125,7 @@ public class Cliente implements Runnable {
 						+ "03 EXE\r\n"
 								+ "\r\n");
 			}
+			
 		});
 	}
 	

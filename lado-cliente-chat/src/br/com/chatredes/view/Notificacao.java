@@ -40,17 +40,7 @@ public class Notificacao {
 		alert.setTitle("Aguarde");
 		alert.setContentText("Aguardando finalização da operação");
 		alert.show();
-				
-		try {
-			Thread.sleep(1000);
-		} catch (InterruptedException e) {
-			e.printStackTrace();
-		}
 		
-		alert.setAlertType(AlertType.INFORMATION);
-		alert.setTitle("Concluido");
-		alert.setContentText("Operação concluida com sucesso");
-		alert.show();
 	}
 	
 	public void mensagemErro()
