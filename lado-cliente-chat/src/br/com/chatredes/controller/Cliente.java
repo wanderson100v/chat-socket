@@ -3,8 +3,11 @@ package br.com.chatredes.controller;
 import java.io.IOException;
 import java.io.PrintStream;
 import java.net.Socket;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Scanner;
+
+import com.sun.xml.internal.bind.v2.runtime.unmarshaller.XsiNilLoader.Array;
 
 import br.com.chatredes.util.Mensagem;
 
@@ -76,6 +79,10 @@ public class Cliente {
 	
 	public void protocoloGetUSERS() {
 		
+		requisicaoServidor.print(
+				"GET/ USERS\r\n"
+				+"\r\n");
+		
 	}
 	
 	public void protocoloGetMSG() {
@@ -117,11 +124,14 @@ public class Cliente {
 				StringBuffer protocoloCompleto = new StringBuffer();
 				while(respostaServidor.hasNextLine()) { 
 					String linha = respostaServidor.nextLine();
+					System.out.println(linha);
 					if(linha.equals("")) { 
 						String[] requisicao = protocoloCompleto.toString().split("\n");
 						Protocolo protocolo = protocolos.get(requisicao[0]);
-						if(protocolo != null)
+						if(protocolo != null) {
+							System.out.println(Arrays.toString(requisicao));
 							protocolo.executarProtocolo(requisicao);
+						}
 						protocoloCompleto = new StringBuffer();
 					}else 
 						protocoloCompleto.append(linha+"\n");
@@ -217,7 +227,10 @@ public class Cliente {
 				e.printStackTrace();
 			}
 		System.out.println("Não sou mais nulo posso retornar");
-		return mensagem;
+		Mensagem tmp = mensagem;
+		this.mensagem = null;
+		return tmp;
 	}
 	
+
 }

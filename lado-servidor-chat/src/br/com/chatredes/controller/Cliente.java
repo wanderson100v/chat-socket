@@ -5,6 +5,7 @@ import java.io.PrintStream;
 import java.net.Socket;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Scanner;
 import java.util.Vector;
 
@@ -57,7 +58,8 @@ public class Cliente implements Runnable {
 				}else // se nÃ£o significa faltar mais linhas
 					protocoloCompleto.append(linha+"\n");
 			}
-			
+			System.out.println("Cliente está saindo do servidor");
+			operacoesDeSaida();
 			protocolos.clear();
 			// ao sair do laÃ§o siginifica que a conexÃ£o foi fechada, entÃ£o o usuÃ¡rio deve ser removido da lista de logados
 			// quando sair do metÃ³do a thread serÃ¡ removida altomaticamente do poll de threads.
@@ -131,13 +133,38 @@ public class Cliente implements Runnable {
 	
 	public void protocoloLOGOUT() {
 		protocolos.put("LOGOUT",(String[] requisicao)->{
-			
+			operacoesDeSaida();
 		});
+	}
+	
+	/**
+	 * ações padrão para logout, criado método a fim de também ser chamado pelo servidor para quando o socke fechar
+	 * ou seja o cliente parar de enviar requisições (pode se observar essa açaõ no método run desta mesma classe)
+	 */
+	public void operacoesDeSaida() {
+		this.usuario = null;
+		clientesLogados.remove(this);
 	}
 	
 	public void protocoloGetUSERS() {
 		protocolos.put("GET/ USERS",(String[] requisicao)->{
-			
+			try {
+				
+				List<Usuario> usuarios = daoUsuario.buscarTodos();
+				String protocolo = 
+						"USERS\r\n"
+						+ "02 SUC\r\n";
+				for(Usuario usuario: usuarios) 
+					protocolo+= usuario.toString()+";"+buscarUsuarioNaListaDeLogados(usuario.getLogin())+"\r\n";
+				protocolo+="\r\n";
+				System.out.println(protocolo);
+				respostasCliente.print(protocolo);
+			} catch (DaoException e) {
+				respostasCliente.print(
+						"USERS\r\n"
+						+ "03 EXE\r\n"
+						+ "\r\n");
+			}
 		});
 	}
 	
@@ -177,6 +204,13 @@ public class Cliente implements Runnable {
 		protocolos.put("NDIGIT",(String[] requisicao)->{
 			
 		});
+	}
+	
+	private boolean buscarUsuarioNaListaDeLogados(String login) {
+		for(Cliente cliente : clientesLogados)
+			if(cliente.usuario != null && cliente.usuario.getLogin().equals(login))
+				return true;
+		return false;
 	}
 	
 }

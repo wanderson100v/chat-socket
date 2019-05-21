@@ -3,6 +3,8 @@
  */
 package br.com.chatredes.model.pojo;
 
+import java.time.LocalDateTime;
+
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.SequenceGenerator;
@@ -26,13 +28,17 @@ public class Usuario extends Entidade{
 	@Column(length = 50, nullable = false)
 	private String nome;
 	
-	public Usuario(Long id, String senha, String login, String nome) {
+	@Column(name = "ultimo_login")
+	private LocalDateTime ultimoLogin;
+	
+	public Usuario(Long id, String senha, String login, String nome, LocalDateTime ultimoLogin) {
 		super(id);
 		this.senha = senha;
 		this.login = login;
 		this.nome = nome;
+		this.ultimoLogin = ultimoLogin;
 	}
-	
+
 	public Usuario(String nome, String login, String senha) {
 		this.senha = senha;
 		this.login = login;
@@ -108,7 +114,7 @@ public class Usuario extends Entidade{
 
 	@Override
 	public String toString() {
-		return "Usuario [senha=" + senha + ", login=" + login + ", nome=" + nome + "]";
+		return nome+";"+login+";"+ultimoLogin;
 	}
 	
 }
