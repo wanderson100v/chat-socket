@@ -34,17 +34,15 @@ public class Cliente extends Observable implements Runnable {
 	
 	private DaoDestinado daoDestinado;
 	
-	private static Vector<Cliente> clientesLogados;
+	private static Vector<Cliente> clientesLogados = new Vector<Cliente>();
 	
 	private Usuario usuario;
 	
-	//meio para mandar respostas para cliente.
 	private PrintStream respostasCliente;
 	
 	public Cliente(Socket socket) {
 		this.socket = socket;
 		this.protocolos = new HashMap<>();
-		this.clientesLogados = new Vector<Cliente>();
 		this.daoUsuario = new DaoUsuario();
 		this.daoMensagem = new DaoMensagem();
 		this.daoDestinado = new DaoDestinado();
@@ -58,24 +56,22 @@ public class Cliente extends Observable implements Runnable {
 			Scanner requisicoesCliente = new Scanner(socket.getInputStream());
 			iniciarTratamentoProtocolos();
 			StringBuffer protocoloCompleto = new StringBuffer();
-			// método hasNextLine() é bloqueante, dessa forma o laço fica parado até o cliente enviar uma requisição
 			while(requisicoesCliente.hasNextLine()) { // enquanto o cliente estiver requisitando
 				String linha = requisicoesCliente.nextLine();
-				if(linha.equals("")) { // sgnifica que requisição chegou totalmente
+				if(linha.equals("")) {
 					String[] requisicao = protocoloCompleto.toString().split("\n");
-					//pegando no mapa de protocolos o protocolo que o cabeçario corresponde e pedindo para o mesmo tratar a requisiçõ
 					Protocolo protocolo = protocolos.get(requisicao[0]);
 					if(protocolo != null)
 						protocolo.executarProtocolo(requisicao);
 					protocoloCompleto = new StringBuffer();
-				}else // se não significa faltar mais linhas
+				}else 
 					protocoloCompleto.append(linha+"\n");
 			}
 			System.out.println("Cliente est� saindo do servidor");
 			operacoesDeSaida();
+			requisicoesCliente.close();
+			
 			protocolos.clear();
-			// ao sair do laço siginifica que a conexão foi fechada, então o usuário deve ser removido da lista de logados
-			// quando sair do metódo a thread será removida altomaticamente do poll de threads.
 		}catch (IOException e) {
 			e.printStackTrace();
 		}
@@ -103,7 +99,6 @@ public class Cliente extends Observable implements Runnable {
 			}
 			try {
 				daoUsuario.cadastrar(new Usuario(requisicao[1], requisicao[2], requisicao[3]));
-				
 				respostasCliente.print(
 						"CNU\r\n"
 						+ "02 SUC\r\n"
@@ -121,9 +116,13 @@ public class Cliente extends Observable implements Runnable {
 	public void protocoloLOGIN() {
 		protocolos.put("LOGIN",(String[] requisicao)->{
 			try {
+				System.out.println("inciando protocolo de login do lado so servidor");
 				this.usuario = daoUsuario.login(requisicao[1], requisicao[2]);
 				if(this.usuario != null) {
 					clientesLogados.add(this);
+					System.out.println("Todos os clientes logados at� o momento");
+					for(Cliente cliente : clientesLogados)
+						System.out.println("Cliente logado "+ cliente.usuario.getLogin());
 					respostasCliente.print(
 							"LOGIN\r\n"
 							+ "02 SUC\r\n"
@@ -162,7 +161,7 @@ public class Cliente extends Observable implements Runnable {
 	public void protocoloGetUSERS() {
 		protocolos.put("GET/ USERS",(String[] requisicao)->{
 			try {
-				
+				System.out.println("iniciando protocolo de dados publicos de todos os usu�rios do lado do servidor");
 				List<UsuarioPublico> usuarios = daoUsuario.buscarTodos();
 				String protocolo = 
 						"USERS\r\n"
@@ -171,7 +170,6 @@ public class Cliente extends Observable implements Runnable {
 							protocolo+= usuario.toString()+";"
 							+((buscarUsuarioNaListaDeLogados(usuario.getLogin()))? "online":"offline")+"\r\n";
 				protocolo+="\r\n";
-				System.out.println(protocolo);
 				respostasCliente.print(protocolo);
 			} catch (DaoException e) {
 				respostasCliente.print(
@@ -185,14 +183,16 @@ public class Cliente extends Observable implements Runnable {
 	public void protocoloGetMSG() {
 		protocolos.put("GET/ MSG",(String[] requisicao)->{
 			try {
-				List<MensagemGlobal> mensagensGlobais =  daoMensagem.buscarMensagensGlobais(usuario.getLogin());
+				System.out.println("iniciando protocolo de buscar mensagem globais do lado do servidor");
+				List<MensagemGlobal> mensagensGlobais =  daoMensagem.buscarMensagensGlobais(this.usuario.getLogin());
 				String protocolo = "MSG\r\n"
 								 + "02 SUC\r\n";
 				for(MensagemGlobal mensagemGlobal :mensagensGlobais)
-					protocolo+= mensagemGlobal+"\n\r";
+					protocolo+= mensagemGlobal+"\r\n";
 				protocolo+= "\r\n";
+				System.out.println("mensagens globais que seram enviadas para o cliente");
+				System.out.println(protocolo);
 				respostasCliente.print(protocolo);
-						
 			} catch (DaoException e) {
 				respostasCliente.print(
 						"MSG\r\n"
@@ -202,12 +202,9 @@ public class Cliente extends Observable implements Runnable {
 		});
 	}
 	
-	
-	public static void main(String[] args) {
-		
-	}
 	public void protocoloMSG() {
 		protocolos.put("MSG",(String[] requisicao)->{
+			System.out.println("iniciando protocolo de envio de mensagem do lado do servidor");
 			DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm"); 
 			LocalDateTime horarioEnvio = LocalDateTime.parse(requisicao[1], formatter);
 			String texto = requisicao[2];
@@ -216,8 +213,10 @@ public class Cliente extends Observable implements Runnable {
 				// cadastrando menssagem em banco e destinando a cada individou, a fim de
 				// possibilidade de valida��o de que visualizou.
 				daoMensagem.cadastrar(mensagem);
+				System.out.println("cadastrando mensagem = "+ mensagem);
 				for(Usuario destinatario : daoUsuario.buscarAll()) {
 					daoDestinado.cadastrar(new Destinado(destinatario, mensagem));
+					System.out.println("enviando mensagem para "+destinatario.getLogin());
 				}
 				//alterar na tela do servidor
 				setChanged();
@@ -226,6 +225,7 @@ public class Cliente extends Observable implements Runnable {
 						"").toString());
 				// avisar a todos os clientes ativos
 				for(Cliente clienteReceptor :clientesLogados) {
+					System.out.println("enviando mensagem para clientes ativos atrav�s do protocolo");
 					clienteReceptor.respostasCliente.print(
 							"MSG\r\n"
 							+"04 EFE\r\n"

@@ -11,7 +11,7 @@ import java.util.Scanner;
 import javafx.application.Platform;
 
 public class Cliente extends Observable{
-	
+		
 	private static Cliente instance;
 	
 	private Socket socket;
@@ -128,6 +128,8 @@ public class Cliente extends Observable{
 					System.out.println(linha);
 					if(linha.equals("")) { 
 						String[] resposta = protocoloCompleto.toString().split("\n");
+						for(String linhaProtocolo : resposta)
+							System.out.println(linhaProtocolo);
 						notificarTelasDeRespostaServidor(resposta);
 						protocoloCompleto = new StringBuffer();
 					}else 
