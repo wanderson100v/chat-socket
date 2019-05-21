@@ -4,13 +4,13 @@ import java.io.IOException;
 import java.io.PrintStream;
 import java.net.Socket;
 import java.time.LocalDateTime;
-import java.util.Arrays;
-import java.util.HashMap;
+import java.time.format.DateTimeFormatter;
+import java.util.Observable;
 import java.util.Scanner;
 
-import br.com.chatredes.util.Mensagem;
+import javafx.application.Platform;
 
-public class Cliente {
+public class Cliente extends Observable{
 	
 	private static Cliente instance;
 	
@@ -24,12 +24,8 @@ public class Cliente {
 	
 	private PrintStream requisicaoServidor;	
 	
-	private HashMap<String,Protocolo> protocolos;
-	
-	private Mensagem mensagem;
 
 	private Cliente() {
-		protocolos = new HashMap<>();
 		entrada = new EntradaRespostaServidor();
 		control();
 		
@@ -91,9 +87,10 @@ public class Cliente {
 	}
 	
 	public void protocoloMSG(LocalDateTime horario,String texto) {
+		DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
 		requisicaoServidor.print(
 				"MSG\r\n"
-				+horario+"\r\n"
+				+horario.format(formatter)+"\r\n"
 				+texto+"\r\n"
 				+"\r\n");
 	}
@@ -125,24 +122,19 @@ public class Cliente {
 			try {
 				
 				Scanner respostaServidor = new Scanner(socket.getInputStream());
-				iniciarTratamentoProtocolos();
 				StringBuffer protocoloCompleto = new StringBuffer();
 				while(respostaServidor.hasNextLine()) { 
 					String linha = respostaServidor.nextLine();
 					System.out.println(linha);
 					if(linha.equals("")) { 
-						String[] requisicao = protocoloCompleto.toString().split("\n");
-						Protocolo protocolo = protocolos.get(requisicao[0]);
-						if(protocolo != null) {
-							System.out.println(Arrays.toString(requisicao));
-							protocolo.executarProtocolo(requisicao);
-						}
+						String[] resposta = protocoloCompleto.toString().split("\n");
+						notificarTelasDeRespostaServidor(resposta);
 						protocoloCompleto = new StringBuffer();
 					}else 
 						protocoloCompleto.append(linha+"\n");
 				}
 				
-				protocolos.clear();
+				respostaServidor.close();
 			} catch (IOException e) {
 				e.printStackTrace();
 			}
@@ -150,92 +142,11 @@ public class Cliente {
 		}
 	}
 	
-	private void iniciarTratamentoProtocolos() {
-		protocoloRespostaCNU();
-		protocoloRespostaDIGIT();
-		protocoloRespostaLOGIN();
-		protocoloRespostaLOGOUT();
-		protocoloRespostaMSG();
-		protocoloRespostaNDIGIT();
-		protocoloRespostaUSERS();
-		protocoloRespostaVISU();
-	}
-	
-	public void protocoloRespostaCNU() {
-		protocolos.put("CNU",(String[] resposta)->{
-			tratarResposta(resposta);
+	public void notificarTelasDeRespostaServidor(String[] protocoloResposta) {
+		Platform.runLater(()->{
+			setChanged();
+			notifyObservers(protocoloResposta);
 		});
 	}
-	
-	public void protocoloRespostaLOGIN() {
-		protocolos.put("LOGIN",(String[] resposta)->{
-			tratarResposta(resposta);
-		});
-	}
-	
-	public void protocoloRespostaLOGOUT() {
-		protocolos.put("LOGOUT",(String[] resposta)->{
-			tratarResposta(resposta);
-		});
-	}
-	
-	public void protocoloRespostaUSERS() {
-		protocolos.put("USERS",(String[] resposta)->{
-			tratarResposta(resposta);
-		});
-	}
-	
-	public void protocoloRespostaMSG() {
-		protocolos.put("MSG",(String[] resposta)->{
-			tratarResposta(resposta);
-		});
-	}
-	
-	public void protocoloRespostaDIGIT() {
-		protocolos.put("DIGIT",(String[] resposta)->{
-			tratarResposta(resposta);
-		});
-	}
-	
-	public void protocoloRespostaVISU() {
-		protocolos.put("VISU",(String[] resposta)->{
-			tratarResposta(resposta);
-		});
-	}
-	
-	public void protocoloRespostaNDIGIT() {
-		protocolos.put("NDIGIT",(String[] resposta)->{
-			tratarResposta(resposta);
-		});
-	}
-	
-	private synchronized void tratarResposta(String[] resposta){
-		
-		if(resposta[1].equals("02 SUC")) {
-			mensagem = Mensagem.SUCESSO;
-			mensagem.setProtocoloCompleto(resposta);
-		}else if(resposta[1].equals("01 ERRO"))
-			mensagem = Mensagem.FALHA;
-		else if(resposta[1].equals("03 EXE"))
-			mensagem = Mensagem.EXCECAO;
-		System.out.println("Resposta chegou irei mandar o getMensagem sair do wait");
-		notifyAll();
-
-	}
-	
-	public synchronized Mensagem getMensagem() {
-		if(mensagem == null)
-			try {
-				System.out.println("Ainda sou nulo estou indo esperar");
-				wait();
-			} catch (InterruptedException e) {
-				e.printStackTrace();
-			}
-		System.out.println("Não sou mais nulo posso retornar");
-		Mensagem tmp = mensagem;
-		this.mensagem = null;
-		return tmp;
-	}
-	
 
 }

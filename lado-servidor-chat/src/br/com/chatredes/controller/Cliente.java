@@ -4,13 +4,12 @@ import java.io.IOException;
 import java.io.PrintStream;
 import java.net.Socket;
 import java.time.LocalDateTime;
-import java.util.Arrays;
+import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Observable;
 import java.util.Scanner;
 import java.util.Vector;
-
-import com.sun.xml.internal.bind.v2.runtime.unmarshaller.XsiNilLoader.Array;
 
 import br.com.chatredes.model.dao.DaoDestinado;
 import br.com.chatredes.model.dao.DaoMensagem;
@@ -22,9 +21,8 @@ import br.com.chatredes.model.pojo.Mensagem;
 import br.com.chatredes.model.pojo.Usuario;
 import br.com.chatredes.model.viewbanco.MensagemGlobal;
 import br.com.chatredes.model.viewbanco.UsuarioPublico;
-import javafx.util.converter.LocalDateTimeStringConverter;
 
-public class Cliente implements Runnable {
+public class Cliente extends Observable implements Runnable {
 	
 	private Socket socket;
 	
@@ -48,6 +46,8 @@ public class Cliente implements Runnable {
 		this.protocolos = new HashMap<>();
 		this.clientesLogados = new Vector<Cliente>();
 		this.daoUsuario = new DaoUsuario();
+		this.daoMensagem = new DaoMensagem();
+		this.daoDestinado = new DaoDestinado();
 		
 	}
 
@@ -208,7 +208,8 @@ public class Cliente implements Runnable {
 	}
 	public void protocoloMSG() {
 		protocolos.put("MSG",(String[] requisicao)->{
-			LocalDateTime horarioEnvio = new LocalDateTimeStringConverter().fromString(requisicao[1]);
+			DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm"); 
+			LocalDateTime horarioEnvio = LocalDateTime.parse(requisicao[1], formatter);
 			String texto = requisicao[2];
 			Mensagem mensagem = new Mensagem(horarioEnvio, texto,TipoMensagem.global,usuario);
 			try {
@@ -216,22 +217,24 @@ public class Cliente implements Runnable {
 				// possibilidade de validação de que visualizou.
 				daoMensagem.cadastrar(mensagem);
 				for(Usuario destinatario : daoUsuario.buscarAll()) {
-					if(!usuario.getLogin().equals(destinatario.getLogin()))
-						daoDestinado.cadastrar(new Destinado(destinatario, mensagem));
+					daoDestinado.cadastrar(new Destinado(destinatario, mensagem));
 				}
+				//alterar na tela do servidor
+				setChanged();
+				notifyObservers(new MensagemGlobal(mensagem.getId(),usuario.getNome(),
+						usuario.getLogin(), horarioEnvio, texto,
+						"").toString());
 				// avisar a todos os clientes ativos
-				
-				for(Cliente cliente :clientesLogados) {
-					if(cliente != this)
-						cliente.respostasCliente.print(
-								"MSG/ 04 EFE\r\n"
-								+usuario.getLogin()+"\r\n"
-								+horarioEnvio+"\r\n"
-								+"global\r\n"
-								+texto+"\r\n"
-								+"\r\n"
-								);
-					
+				for(Cliente clienteReceptor :clientesLogados) {
+					clienteReceptor.respostasCliente.print(
+							"MSG\r\n"
+							+"04 EFE\r\n"
+							+"GLOBAL\r\n"
+							+(new MensagemGlobal(mensagem.getId(),usuario.getNome(),
+									usuario.getLogin(), horarioEnvio, texto,
+									clienteReceptor.usuario.getLogin()))+"\r\n"
+							+"\r\n"
+							);
 				}
 				
 				

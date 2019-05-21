@@ -3,6 +3,9 @@
  */
 package br.com.chatredes.controller;
 
+import java.util.Observable;
+import java.util.Observer;
+
 import br.com.chatredes.model.enums.Conexao;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -17,7 +20,7 @@ import javafx.scene.input.KeyEvent;
  * @author Mael Santos
  *
  */
-public class ControleServidor extends Controle {
+public class ControleServidor extends Controle implements Observer {
 
 	@FXML
 	private Label lblEstado;
@@ -72,5 +75,10 @@ public class ControleServidor extends Controle {
 	 */
 	private void enviarMensagem() {
 
+	}
+
+	@Override
+	public void update(Observable o, Object arg) {
+		txaMensagens.setText(txaMensagens.getText()+"\n"+arg);
 	}
 }

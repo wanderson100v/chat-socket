@@ -1,17 +1,16 @@
 package br.com.chatredes.controller;
 
 import java.io.IOException;
+import java.time.LocalDateTime;
+import java.util.Observable;
 
 import br.com.chatredes.app.AppCliente;
-import br.com.chatredes.util.Mensagem;
-import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.ListView;
-import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
@@ -51,8 +50,8 @@ public class ControleCliente extends Controle{
     
     @Override
 	public void init() {
-    	requisitarListaUsuarios();
-    	requisitarMensagensGlobais();
+    	Cliente.getInstance().protocoloGetUSERS();
+    	Cliente.getInstance().protocoloGetMSG();
     }
     
     @FXML
@@ -89,44 +88,37 @@ public class ControleCliente extends Controle{
 
     private void enviarMensagem()
     {
-    	
+    	String msg = tfdMensagem.getText().trim();
+    	if(msg.length() > 0)
+    		cliente.protocoloMSG(LocalDateTime.now(),tfdMensagem.getText());
     }
-    
-    private void requisitarListaUsuarios() {
-    	Cliente.getInstance().protocoloGetUSERS();
-    	new Thread(()-> {
-			Mensagem mensagem = cliente.getMensagem();
-    		Platform.runLater(()->{ 
-	    		if(mensagem == Mensagem.SUCESSO)
-				{
-	    			String[] protocoloReposta = mensagem.getProtocoloCompleto();
-	    			for(int i = 2; i<protocoloReposta.length ; i++) {
-	    				System.out.println(protocoloReposta[i]);
-	    				userList.getItems().add(protocoloReposta[i]);
-	    			}
-				}
-				else
-					notificacao.mensagemErro();
-	    	});
-		}).start();
-    }
-    
-    private void requisitarMensagensGlobais() {
-    	Cliente.getInstance().protocoloRespostaMSG();
-    	new Thread(()-> {
-			Mensagem mensagem = cliente.getMensagem();
-    		Platform.runLater(()->{ 
-	    		if(mensagem == Mensagem.SUCESSO)
-				{
-	    			String[] protocoloReposta = mensagem.getProtocoloCompleto();
-	    			for(int i = 2; i<protocoloReposta.length ; i++) {
-	    				System.out.println(protocoloReposta[i]);
-	    				msgList.getItems().add(protocoloReposta[i]);
-	    			}
-				}
-				else
-					notificacao.mensagemErro();
-	    	});
-		}).start();
-    }
+
+	@Override
+	public void update(Observable o, Object arg) {
+		String[] respostaServidor = (String[]) arg;
+		if(respostaServidor[0].equals("USERS")) {
+    		if(respostaServidor[1].equals("02 SUC"))
+			{
+    			for(int i = 2; i<respostaServidor.length ; i++) {
+    				System.out.println(respostaServidor[i]);
+    				userList.getItems().add(respostaServidor[i]);
+    			}
+			}
+			else
+				notificacao.mensagemErro();
+		}else if(respostaServidor[0].equals("MSG")) {
+			if(respostaServidor[1].equals("02 SUC"))
+			{
+    			for(int i = 2; i<respostaServidor.length ; i++) {
+    				System.out.println(respostaServidor[i]);
+    				msgList.getItems().add(respostaServidor[i]);
+    			}
+			}else if(respostaServidor[1].equals("04 EFE") && respostaServidor[2].equals("GLOBAL")) {
+				System.out.println("recebi mensagem");
+				msgList.getItems().add(respostaServidor[3]);
+			}
+			else
+				notificacao.mensagemErro();
+		}
+	}
 }

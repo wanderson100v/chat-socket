@@ -13,6 +13,7 @@ import jdk.nashorn.internal.ir.annotations.Immutable;
 @Immutable
 @Subselect(
 		"select msg.id as id, "
+		+ "remetente.nome as nomeRemetente,"
 		+ "remetente.login as loginRemetente,"
 		+ "destinatario.login as loginDestinatario, "
 		+ "msg.horario_envio as horarioEnvio, "
@@ -26,7 +27,9 @@ import jdk.nashorn.internal.ir.annotations.Immutable;
 public class MensagemGlobal {
 
 	@Id
-	private long id;
+	private Long id;
+	
+	private String nomeRemetente ;
 	
 	private String loginRemetente ;
 	
@@ -36,7 +39,21 @@ public class MensagemGlobal {
 	
 	private LocalDateTime horaVizualizado;
 	
-	private String loginDestinatario;	
+	private String loginDestinatario;
+	
+	
+	public MensagemGlobal(Long id, String nomeRemetente, String loginRemetente, LocalDateTime horarioEnvio,
+			String mensagem, String loginDestinatario) {
+		super();
+		this.id = id;
+		this.nomeRemetente = nomeRemetente;
+		this.loginRemetente = loginRemetente;
+		this.horarioEnvio = horarioEnvio;
+		this.mensagem = mensagem;
+		this.loginDestinatario = loginDestinatario;
+	}
+	
+	public MensagemGlobal() {}
 
 	public long getId() {
 		return id;
@@ -46,6 +63,19 @@ public class MensagemGlobal {
 		this.id = id;
 	}
 	
+	
+	public String getNomeRemetente() {
+		return nomeRemetente;
+	}
+
+
+
+	public void setNomeRemetente(String nomeRemetente) {
+		this.nomeRemetente = nomeRemetente;
+	}
+
+
+
 	public String getLoginDestinatario() {
 		return loginDestinatario;
 	}
@@ -88,14 +118,9 @@ public class MensagemGlobal {
 
 	@Override
 	public String toString() {
-		return "MensagemGlobal [id=" + id + ", loginRemetente=" + loginRemetente + ", horarioEnvio=" + horarioEnvio
-				+ ", mensagem=" + mensagem + ", horaVizualizado=" + horaVizualizado + ", loginDestinatario="
-				+ loginDestinatario + "]";
+		return "MensagemGlobal [id=" + id + ", nomeRemetente=" + nomeRemetente + ", loginRemetente=" + loginRemetente
+				+ ", horarioEnvio=" + horarioEnvio + ", mensagem=" + mensagem + ", horaVizualizado=" + horaVizualizado
+				+ ", loginDestinatario=" + loginDestinatario + "]";
 	}
-	
-	
-	
-	
-	
 	
 }

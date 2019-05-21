@@ -4,6 +4,7 @@
 package br.com.chatredes.controller;
 
 import java.net.URL;
+import java.util.Observer;
 import java.util.ResourceBundle;
 
 import br.com.chatredes.view.Notificacao;
@@ -13,7 +14,7 @@ import javafx.fxml.Initializable;
  * @author mael santos
  *
  */
-public abstract class Controle implements Initializable {
+public abstract class Controle implements Initializable, Observer {
 
 	protected Notificacao notificacao;
     protected Cliente cliente;
@@ -23,6 +24,7 @@ public abstract class Controle implements Initializable {
 		init();
 		notificacao = Notificacao.getInstance();
 		cliente = Cliente.getInstance();
+		Cliente.getInstance().addObserver(this);
 	}
 
 	/**

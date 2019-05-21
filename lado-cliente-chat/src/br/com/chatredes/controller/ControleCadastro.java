@@ -1,10 +1,9 @@
 package br.com.chatredes.controller;
 
 import java.io.IOException;
+import java.util.Observable;
 
 import br.com.chatredes.app.AppCliente;
-import br.com.chatredes.util.Mensagem;
-import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -49,20 +48,7 @@ public class ControleCadastro extends Controle{
 			if(tfdSenha.getText().trim().equals(tfdConfirmarSenha.getText().trim()))
 			{
 				cliente.protocoloCNU(tfdNome.getText().trim(), tfdLogin.getText().trim(), tfdSenha.getText().trim());
-
 				notificacao.mensagemAguarde();
-				new Thread(()-> {
-					Mensagem mensagem = cliente.getMensagem();
-		    		Platform.runLater(()->{ 
-		    			if(mensagem == Mensagem.SUCESSO)
-						{
-							notificacao.mensagemSucesso();
-							voltar();
-						}
-						else
-							notificacao.mensagemErro();
-			    	});
-				}).start();
 			}
 			else
 				notificacao.mensagemErro();
@@ -83,6 +69,18 @@ public class ControleCadastro extends Controle{
 			AppCliente.changeStage(loginCliente);
 		} catch (IOException e) {
 			e.printStackTrace();
+		}
+	}
+
+	@Override
+	public void update(Observable o, Object arg) {
+		String[] respostaServidor = (String[]) arg;
+		if(respostaServidor[0].equals("CNU")) {
+			if(respostaServidor[1].equals("02 SUC")) {
+				notificacao.mensagemSucesso();
+				voltar();
+			}else
+				notificacao.mensagemErro();
 		}
 	}
 
