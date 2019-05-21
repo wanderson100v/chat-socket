@@ -205,8 +205,7 @@ public class Cliente extends Observable implements Runnable {
 	public void protocoloMSG() {
 		protocolos.put("MSG",(String[] requisicao)->{
 			System.out.println("iniciando protocolo de envio de mensagem do lado do servidor");
-			DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm"); 
-			LocalDateTime horarioEnvio = LocalDateTime.parse(requisicao[1], formatter);
+			LocalDateTime horarioEnvio = LocalDateTime.parse(requisicao[1], DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm"));
 			String texto = requisicao[2];
 			Mensagem mensagem = new Mensagem(horarioEnvio, texto,TipoMensagem.global,usuario);
 			try {
@@ -218,11 +217,6 @@ public class Cliente extends Observable implements Runnable {
 					daoDestinado.cadastrar(new Destinado(destinatario, mensagem));
 					System.out.println("enviando mensagem para "+destinatario.getLogin());
 				}
-				//alterar na tela do servidor
-				setChanged();
-				notifyObservers(new MensagemGlobal(mensagem.getId(),usuario.getNome(),
-						usuario.getLogin(), horarioEnvio, texto,
-						"").toString());
 				// avisar a todos os clientes ativos
 				for(Cliente clienteReceptor :clientesLogados) {
 					System.out.println("enviando mensagem para clientes ativos através do protocolo");

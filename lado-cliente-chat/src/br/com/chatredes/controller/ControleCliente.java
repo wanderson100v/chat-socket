@@ -2,9 +2,12 @@ package br.com.chatredes.controller;
 
 import java.io.IOException;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.Observable;
 
 import br.com.chatredes.app.AppCliente;
+import br.com.chatredes.model.MensagemGlobal;
+import br.com.chatredes.model.UsuarioPublico;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -38,10 +41,10 @@ public class ControleCliente extends Controle{
     private TextField tfdMensagem;
     
     @FXML
-    private ListView<String> msgList;
+    private ListView<MensagemGlobal> msgList;
     
     @FXML
-    private ListView<String> userList;
+    private ListView<UsuarioPublico> userList;
 
     @FXML
     private Button btnEnviar;
@@ -100,8 +103,7 @@ public class ControleCliente extends Controle{
     		if(respostaServidor[1].equals("02 SUC"))
 			{
     			for(int i = 2; i<respostaServidor.length ; i++) {
-    				System.out.println(respostaServidor[i]);
-    				userList.getItems().add(respostaServidor[i]);
+    				userList.getItems().add(converterStringEmUsuarioPublico(respostaServidor[i]));
     			}
 			}
 			else
@@ -110,15 +112,33 @@ public class ControleCliente extends Controle{
 			if(respostaServidor[1].equals("02 SUC"))
 			{
     			for(int i = 2; i<respostaServidor.length ; i++) {
-    				System.out.println(respostaServidor[i]);
-    				msgList.getItems().add(respostaServidor[i]);
+    				msgList.getItems().add(converterStringEmMensagemGlobal(respostaServidor[i]));
     			}
 			}else if(respostaServidor[1].equals("04 EFE") && respostaServidor[2].equals("GLOBAL")) {
 				System.out.println("recebi mensagem");
-				msgList.getItems().add(respostaServidor[3]);
+				msgList.getItems().add(converterStringEmMensagemGlobal(respostaServidor[3]));
 			}
 			else
 				notificacao.mensagemErro();
 		}
+	}
+	
+	private MensagemGlobal converterStringEmMensagemGlobal(String linha) {
+		String[] atributosMsg = linha.split(";");
+		return new MensagemGlobal(
+				Long.parseLong(atributosMsg[0])/*id*/,
+				atributosMsg[1]/*nomeRemetente*/,
+				atributosMsg[2]/*loginRemetente*/,
+				((!atributosMsg[3].equals("null"))?LocalDateTime.parse(atributosMsg[3],DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm")): null)/*horarioEnvio*/, 
+				atributosMsg[4]/*mensagem*/, 
+				((!atributosMsg[5].equals("null"))?LocalDateTime.parse(atributosMsg[5],DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm")): null)/*horaVizualizado*/,
+				atributosMsg[6]/*loginDestinatario*/);
+	}
+	
+	private UsuarioPublico converterStringEmUsuarioPublico(String linha) {
+		String[] atributosUser = linha.split(";");
+		return new UsuarioPublico(atributosUser[0],
+				atributosUser[1],((!atributosUser[2].equals("null"))?LocalDateTime.parse(atributosUser[2],
+						DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm")): null), atributosUser[3]);
 	}
 }

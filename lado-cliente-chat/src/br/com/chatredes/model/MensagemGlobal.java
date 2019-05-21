@@ -1,33 +1,9 @@
-package br.com.chatredes.model.viewbanco;
+package br.com.chatredes.model;
 
 import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 
-import javax.persistence.Entity;
-import javax.persistence.Id;
-
-import org.hibernate.annotations.Subselect;
-
-import jdk.nashorn.internal.ir.annotations.Immutable;
-
-@Entity
-@Immutable
-@Subselect(
-		"select msg.id as id, "
-		+ "remetente.nome as nomeRemetente,"
-		+ "remetente.login as loginRemetente,"
-		+ "destinatario.login as loginDestinatario, "
-		+ "msg.horario_envio as horarioEnvio, "
-		+ "msg.texto as mensagem, "
-		+ "dest.h_visu as horaVizualizado "
-		+ "from Usuario remetente "
-		+ "inner join Mensagem msg on(msg.remetente_id = remetente.id) "
-		+ "inner join Destinado dest on(dest.mensagem_id = msg.id) "
-		+ "inner join Usuario destinatario on(dest.destinatario_id = destinatario.id) "
-		+ "where msg.tipo = 0")
 public class MensagemGlobal {
 
-	@Id
 	private Long id;
 	
 	private String nomeRemetente ;
@@ -44,16 +20,17 @@ public class MensagemGlobal {
 	
 	
 	public MensagemGlobal(Long id, String nomeRemetente, String loginRemetente, LocalDateTime horarioEnvio,
-			String mensagem, String loginDestinatario) {
+			String mensagem, LocalDateTime horaVizualizado, String loginDestinatario) {
 		super();
 		this.id = id;
 		this.nomeRemetente = nomeRemetente;
 		this.loginRemetente = loginRemetente;
 		this.horarioEnvio = horarioEnvio;
 		this.mensagem = mensagem;
+		this.horaVizualizado = horaVizualizado;
 		this.loginDestinatario = loginDestinatario;
 	}
-	
+
 	public MensagemGlobal() {}
 
 	public long getId() {
@@ -119,8 +96,9 @@ public class MensagemGlobal {
 
 	@Override
 	public String toString() {
-		return id + ";" + nomeRemetente + ";" + loginRemetente + ";" + ((horarioEnvio != null)?horarioEnvio.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm")):"null") + ";" 
-				+ mensagem + ";" + ((horaVizualizado != null)?horaVizualizado.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm")):"null")+ ";" + loginDestinatario;
+		return "MensagemGlobal [id=" + id + ", nomeRemetente=" + nomeRemetente + ", loginRemetente=" + loginRemetente
+				+ ", horarioEnvio=" + horarioEnvio + ", mensagem=" + mensagem + ", horaVizualizado=" + horaVizualizado
+				+ ", loginDestinatario=" + loginDestinatario + "]";
 	}
 	
 }

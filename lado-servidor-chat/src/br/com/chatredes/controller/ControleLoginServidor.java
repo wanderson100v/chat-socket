@@ -1,6 +1,7 @@
 package br.com.chatredes.controller;
 
 import java.io.IOException;
+import java.util.Observable;
 
 import br.com.chatredes.app.AppServidor;
 import javafx.event.ActionEvent;

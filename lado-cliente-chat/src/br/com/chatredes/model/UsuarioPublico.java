@@ -1,27 +1,32 @@
-package br.com.chatredes.model.viewbanco;
+package br.com.chatredes.model;
 
 import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 
-import javax.persistence.Entity;
-import javax.persistence.Id;
-
-import org.hibernate.annotations.Subselect;
-
-import jdk.nashorn.internal.ir.annotations.Immutable;
-
-@Entity
-@Immutable
-@Subselect("select u.nome as nome, u.login as login, u.ultimo_login as ultimoLogin from Usuario u")
 public class UsuarioPublico {
 	
 	private String nome;
 	
-	@Id
 	private String login;
 	
 	private LocalDateTime ultimoLogin;
 	
+	private String estado;
+	
+	public UsuarioPublico(String nome, String login, LocalDateTime ultimoLogin, String estado) {
+		this.nome = nome;
+		this.login = login;
+		this.ultimoLogin = ultimoLogin;
+		this.estado = estado;
+	}
+
+	public String getEstado() {
+		return estado;
+	}
+
+	public void setEstado(String estado) {
+		this.estado = estado;
+	}
+
 	public String getNome() {
 		return nome;
 	}
@@ -29,7 +34,7 @@ public class UsuarioPublico {
 	public void setNome(String nome) {
 		this.nome = nome;
 	}
-
+	
 	public String getLogin() {
 		return login;
 	}
@@ -48,6 +53,7 @@ public class UsuarioPublico {
 
 	@Override
 	public String toString() {
-		return nome + ";" + login +";"+((ultimoLogin != null)?ultimoLogin.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm")):"null");
+		return "UsuarioPublico [nome=" + nome + ", login=" + login + ", ultimoLogin=" + ultimoLogin + ", estado="
+				+ estado + "]";
 	}
 }

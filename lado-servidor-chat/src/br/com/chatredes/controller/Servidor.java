@@ -3,13 +3,11 @@ package br.com.chatredes.controller;
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
-import java.util.Vector;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-import br.com.chatredes.model.pojo.Usuario;
 
-public class Servidor extends Thread{
+public class Servidor{
 	
 	private static Servidor instance;
 	
@@ -19,9 +17,12 @@ public class Servidor extends Thread{
 	
 	private ServerSocket serverSocket;
 	
+	private AceitarLigacaoCliente aceitarLigacaoCliente;
+	
 	private Servidor() throws IOException {
 		this.clientes = Executors.newCachedThreadPool();
 		this.serverSocket = new ServerSocket(porta);
+		aceitarLigacaoCliente = new AceitarLigacaoCliente();
 	}
 	/*
 	 * garantindo apenas um servidor por execução.
@@ -39,7 +40,7 @@ public class Servidor extends Thread{
 	 */
 	public static void iniciarServidor() {
 		try {
-			getInstance().start();
+			getInstance().aceitarLigacaoCliente.start();
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
@@ -47,20 +48,21 @@ public class Servidor extends Thread{
 	/**
 	 * thread responsavel por aceitar clientes e adiciona-los ao pool de theads
 	 */
-	@Override
-	public void run() {
-		while(true) {
-			try {
-				// cliente criou uma ligação com a porta. essa ligação é aceita, e aguardará o 
-				// o cliente fazer requisições
-				Socket socketComCliente = serverSocket.accept();
-				System.out.println("Novo cliente aceito!");
-				clientes.execute(new Cliente(socketComCliente));
-			}catch (IOException e) {
-				
+	private class AceitarLigacaoCliente extends Thread{
+		@Override
+		public void run() {
+			while(true) {
+				try {
+					// cliente criou uma ligação com a porta. essa ligação é aceita, e aguardará o 
+					// o cliente fazer requisições
+					Socket socketComCliente = serverSocket.accept();
+					System.out.println("Novo cliente aceito!");
+					clientes.execute(new Cliente(socketComCliente));
+				}catch (IOException e) {
+					
+				}
 			}
+			
 		}
-		
 	}
-	
 }

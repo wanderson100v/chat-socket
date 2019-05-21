@@ -3,8 +3,6 @@
  */
 package br.com.chatredes.controller;
 
-import java.util.Observable;
-import java.util.Observer;
 
 import br.com.chatredes.model.enums.Conexao;
 import javafx.event.ActionEvent;
@@ -20,7 +18,7 @@ import javafx.scene.input.KeyEvent;
  * @author Mael Santos
  *
  */
-public class ControleServidor extends Controle implements Observer {
+public class ControleServidor extends Controle {
 
 	@FXML
 	private Label lblEstado;
@@ -36,15 +34,10 @@ public class ControleServidor extends Controle implements Observer {
 
 	@Override
 	public void init() {
-		
 		Servidor.iniciarServidor();
 		lblEstado.setText(Conexao.CONECTADO+"");//modifica o estado para conectado
 	}
 
-	/**
-	 * @param event
-	 * <p>Método responsável por tratar a ação do clique do Button</p>
-	 */    		
 	@FXML
 	void clickAction(ActionEvent event) {
 
@@ -77,8 +70,4 @@ public class ControleServidor extends Controle implements Observer {
 
 	}
 
-	@Override
-	public void update(Observable o, Object arg) {
-		txaMensagens.setText(txaMensagens.getText()+"\n"+arg);
-	}
 }
