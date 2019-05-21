@@ -3,11 +3,10 @@ package br.com.chatredes.controller;
 import java.io.IOException;
 import java.io.PrintStream;
 import java.net.Socket;
+import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Scanner;
-
-import com.sun.xml.internal.bind.v2.runtime.unmarshaller.XsiNilLoader.Array;
 
 import br.com.chatredes.util.Mensagem;
 
@@ -86,11 +85,17 @@ public class Cliente {
 	}
 	
 	public void protocoloGetMSG() {
-		
+		requisicaoServidor.print(
+				"GET/ MSG\r\n"
+				+"\r\n");
 	}
 	
-	public void protocoloMSG() {
-		
+	public void protocoloMSG(LocalDateTime horario,String texto) {
+		requisicaoServidor.print(
+				"MSG\r\n"
+				+horario+"\r\n"
+				+texto+"\r\n"
+				+"\r\n");
 	}
 	
 	

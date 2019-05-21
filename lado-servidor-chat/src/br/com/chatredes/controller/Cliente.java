@@ -3,6 +3,7 @@ package br.com.chatredes.controller;
 import java.io.IOException;
 import java.io.PrintStream;
 import java.net.Socket;
+import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
@@ -11,9 +12,17 @@ import java.util.Vector;
 
 import com.sun.xml.internal.bind.v2.runtime.unmarshaller.XsiNilLoader.Array;
 
+import br.com.chatredes.model.dao.DaoDestinado;
+import br.com.chatredes.model.dao.DaoMensagem;
 import br.com.chatredes.model.dao.DaoUsuario;
+import br.com.chatredes.model.enums.TipoMensagem;
 import br.com.chatredes.model.excecoes.DaoException;
+import br.com.chatredes.model.pojo.Destinado;
+import br.com.chatredes.model.pojo.Mensagem;
 import br.com.chatredes.model.pojo.Usuario;
+import br.com.chatredes.model.viewbanco.MensagemGlobal;
+import br.com.chatredes.model.viewbanco.UsuarioPublico;
+import javafx.util.converter.LocalDateTimeStringConverter;
 
 public class Cliente implements Runnable {
 	
@@ -22,6 +31,10 @@ public class Cliente implements Runnable {
 	private HashMap<String,Protocolo> protocolos;
 	
 	private DaoUsuario daoUsuario;
+	
+	private DaoMensagem daoMensagem;
+	
+	private DaoDestinado daoDestinado;
 	
 	private static Vector<Cliente> clientesLogados;
 	
@@ -150,12 +163,13 @@ public class Cliente implements Runnable {
 		protocolos.put("GET/ USERS",(String[] requisicao)->{
 			try {
 				
-				List<Usuario> usuarios = daoUsuario.buscarTodos();
+				List<UsuarioPublico> usuarios = daoUsuario.buscarTodos();
 				String protocolo = 
 						"USERS\r\n"
 						+ "02 SUC\r\n";
-				for(Usuario usuario: usuarios) 
-					protocolo+= usuario.toString()+";"+buscarUsuarioNaListaDeLogados(usuario.getLogin())+"\r\n";
+				for(UsuarioPublico usuario: usuarios) 
+							protocolo+= usuario.toString()+";"
+							+((buscarUsuarioNaListaDeLogados(usuario.getLogin()))? "online":"offline")+"\r\n";
 				protocolo+="\r\n";
 				System.out.println(protocolo);
 				respostasCliente.print(protocolo);
@@ -170,12 +184,60 @@ public class Cliente implements Runnable {
 	
 	public void protocoloGetMSG() {
 		protocolos.put("GET/ MSG",(String[] requisicao)->{
-			
+			try {
+				List<MensagemGlobal> mensagensGlobais =  daoMensagem.buscarMensagensGlobais(usuario.getLogin());
+				String protocolo = "MSG\r\n"
+								 + "02 SUC\r\n";
+				for(MensagemGlobal mensagemGlobal :mensagensGlobais)
+					protocolo+= mensagemGlobal+"\n\r";
+				protocolo+= "\r\n";
+				respostasCliente.print(protocolo);
+						
+			} catch (DaoException e) {
+				respostasCliente.print(
+						"MSG\r\n"
+						+ "03 EXE\r\n"
+								+ "\r\n");
+			}
 		});
 	}
 	
+	
+	public static void main(String[] args) {
+		
+	}
 	public void protocoloMSG() {
 		protocolos.put("MSG",(String[] requisicao)->{
+			LocalDateTime horarioEnvio = new LocalDateTimeStringConverter().fromString(requisicao[1]);
+			String texto = requisicao[2];
+			Mensagem mensagem = new Mensagem(horarioEnvio, texto,TipoMensagem.global,usuario);
+			try {
+				// cadastrando menssagem em banco e destinando a cada individou, a fim de
+				// possibilidade de validação de que visualizou.
+				daoMensagem.cadastrar(mensagem);
+				for(Usuario destinatario : daoUsuario.buscarAll()) {
+					if(!usuario.getLogin().equals(destinatario.getLogin()))
+						daoDestinado.cadastrar(new Destinado(destinatario, mensagem));
+				}
+				// avisar a todos os clientes ativos
+				
+				for(Cliente cliente :clientesLogados) {
+					if(cliente != this)
+						cliente.respostasCliente.print(
+								"MSG/ 04 EFE\r\n"
+								+usuario.getLogin()+"\r\n"
+								+horarioEnvio+"\r\n"
+								+"global\r\n"
+								+texto+"\r\n"
+								+"\r\n"
+								);
+					
+				}
+				
+				
+			} catch (DaoException e) {
+				e.printStackTrace();
+			}
 			
 		});
 	}

@@ -36,8 +36,7 @@ public class Mensagem extends Entidade{
 	@JoinColumn(nullable = false)
 	private Usuario remetente;
 	
-	public Mensagem(Long id, LocalDateTime horarioEnvio, String texto, TipoMensagem tipo, Usuario remetente) {
-		super(id);
+	public Mensagem(LocalDateTime horarioEnvio, String texto, TipoMensagem tipo, Usuario remetente) {
 		this.horarioEnvio = horarioEnvio;
 		this.texto = texto;
 		this.tipo = tipo;

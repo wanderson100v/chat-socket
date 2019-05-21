@@ -4,7 +4,6 @@
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.ListView?>
 <?import javafx.scene.control.Separator?>
-<?import javafx.scene.control.TextArea?>
 <?import javafx.scene.control.TextField?>
 <?import javafx.scene.control.Tooltip?>
 <?import javafx.scene.image.Image?>
@@ -73,13 +72,6 @@
                      </children>
                   </VBox>
                </top>
-               <center>
-                  <TextArea fx:id="txaMensagens" editable="false" prefHeight="198.0" prefWidth="560.0" styleClass="caixa-texto" BorderPane.alignment="CENTER">
-                     <tooltip>
-                        <Tooltip text="Área de Mensagens" />
-                     </tooltip>
-                  </TextArea>
-               </center>
                <bottom>
                   <FlowPane prefHeight="80.0" prefWidth="560.0" styleClass="container-centro" BorderPane.alignment="CENTER">
                      <children>
@@ -103,6 +95,9 @@
                      </children>
                   </FlowPane>
                </bottom>
+               <center>
+                  <ListView fx:id="msgList" prefHeight="200.0" prefWidth="200.0" BorderPane.alignment="CENTER" />
+               </center>
             </BorderPane>
             <ListView fx:id="userList" prefHeight="500.0" prefWidth="230.0" />
          </children>

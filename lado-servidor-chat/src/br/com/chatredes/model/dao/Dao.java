@@ -1,6 +1,9 @@
 package br.com.chatredes.model.dao;
 
 
+import java.util.ArrayList;
+import java.util.List;
+
 import javax.persistence.EntityManager;
 
 import br.com.chatredes.model.dao.util.ConnectionFactory;
@@ -80,5 +83,16 @@ public abstract class Dao<T extends Entidade>{
 //		finally {
 //			em.close();
 //		}
+	}
+	
+	public List<T> buscarAll() throws DaoException {
+		List<T> t = new ArrayList<>();
+		try {
+			t =  em.createQuery("from entidade."+tipoDaClasse.getSimpleName()+" elemento",tipoDaClasse).getResultList();
+		}catch (Exception e) {
+			e.printStackTrace();
+			throw new DaoException("OCORREU UM ERRO AO BUSCAR TODOS "+tipoDaClasse.getSimpleName().toUpperCase()+", CONTATE O ADM.");
+		}
+		return t;
 	}
 }

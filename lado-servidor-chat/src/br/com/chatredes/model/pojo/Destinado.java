@@ -33,8 +33,7 @@ public class Destinado extends Entidade{
 	private Mensagem mensagem;
 
 	
-	public Destinado(Long id, LocalDateTime hVisu, Usuario destinatario, Mensagem mensagem) {
-		super(id);
+	public Destinado(Usuario destinatario, Mensagem mensagem) {
 		this.hVisu = hVisu;
 		this.destinatario = destinatario;
 		this.mensagem = mensagem;

@@ -36,10 +36,10 @@ public class ControleCliente extends Controle{
     private Label lblStatus;
 
     @FXML
-    private TextArea txaMensagens;
-
-    @FXML
     private TextField tfdMensagem;
+    
+    @FXML
+    private ListView<String> msgList;
     
     @FXML
     private ListView<String> userList;
@@ -52,6 +52,7 @@ public class ControleCliente extends Controle{
     @Override
 	public void init() {
     	requisitarListaUsuarios();
+    	requisitarMensagensGlobais();
     }
     
     @FXML
@@ -93,7 +94,6 @@ public class ControleCliente extends Controle{
     
     private void requisitarListaUsuarios() {
     	Cliente.getInstance().protocoloGetUSERS();
-    	
     	new Thread(()-> {
 			Mensagem mensagem = cliente.getMensagem();
     		Platform.runLater(()->{ 
@@ -109,6 +109,24 @@ public class ControleCliente extends Controle{
 					notificacao.mensagemErro();
 	    	});
 		}).start();
-    	
+    }
+    
+    private void requisitarMensagensGlobais() {
+    	Cliente.getInstance().protocoloRespostaMSG();
+    	new Thread(()-> {
+			Mensagem mensagem = cliente.getMensagem();
+    		Platform.runLater(()->{ 
+	    		if(mensagem == Mensagem.SUCESSO)
+				{
+	    			String[] protocoloReposta = mensagem.getProtocoloCompleto();
+	    			for(int i = 2; i<protocoloReposta.length ; i++) {
+	    				System.out.println(protocoloReposta[i]);
+	    				msgList.getItems().add(protocoloReposta[i]);
+	    			}
+				}
+				else
+					notificacao.mensagemErro();
+	    	});
+		}).start();
     }
 }
