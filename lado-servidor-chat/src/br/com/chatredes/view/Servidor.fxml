@@ -2,6 +2,7 @@
 
 <?import javafx.scene.control.Button?>
 <?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ListView?>
 <?import javafx.scene.control.Separator?>
 <?import javafx.scene.control.TextArea?>
 <?import javafx.scene.control.TextField?>
@@ -19,7 +20,7 @@
          <center>
             <HBox styleClass="container-horizontal" BorderPane.alignment="CENTER">
                <children>
-                  <VBox styleClass="container-horizontal">
+                  <VBox prefHeight="480.0" prefWidth="505.0" styleClass="container-horizontal">
                      <children>
                         <HBox prefHeight="73.0" prefWidth="377.0" styleClass="container-horizontal">
                            <children>
@@ -60,7 +61,8 @@
                   <Separator orientation="VERTICAL" prefHeight="200.0" />
                   <VBox styleClass="container-vertical">
                      <children>
-                        <Label styleClass="texto-principal" text="Conectados" />
+                        <Label styleClass="texto-principal" text="Clientes" />
+                        <ListView fx:id="userList" prefHeight="500.0" prefWidth="230.0" />
                      </children>
                   </VBox>
                </children>

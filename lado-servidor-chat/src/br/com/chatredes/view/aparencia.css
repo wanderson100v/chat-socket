@@ -6,7 +6,7 @@
 /*Classes*/
 .principal{
 	
-	-fx-pref-width: 580.0;
+	-fx-pref-width: 790.0;
 	-fx-pref-height: 500.0;
 	-fx-background-color: #3B4F51; /*Cor de Fundo*/
 	
@@ -14,7 +14,7 @@
 
 .corpo{
 		
-	-fx-pref-width: 580.0;
+	-fx-pref-width: 790.0;
 	-fx-pref-height: 500.0;
 	-fx-padding: 10.0, 10.0;
 	-fx-spacing: 10.0;

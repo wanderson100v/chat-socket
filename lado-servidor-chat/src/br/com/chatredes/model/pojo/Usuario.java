@@ -116,5 +116,13 @@ public class Usuario extends Entidade{
 	public String toString() {
 		return nome+";"+login+";"+ultimoLogin;
 	}
+
+	public LocalDateTime getUltimoLogin() {
+		return ultimoLogin;
+	}
+
+	public void setUltimoLogin(LocalDateTime ultimoLogin) {
+		this.ultimoLogin = ultimoLogin;
+	}
 	
 }

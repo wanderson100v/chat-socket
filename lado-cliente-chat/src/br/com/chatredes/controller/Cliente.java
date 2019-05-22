@@ -68,8 +68,11 @@ public class Cliente extends Observable{
 				+ "\r\n");
 	}
 	
-	public void protocoloLOGOUT() {
-		
+	public void protocoloLOGOUT(LocalDateTime time) {
+		requisicaoServidor.print(
+				"LOGOUT\r\n"
+				+time+"\r\n"
+				+ "\r\n");
 	}
 	
 	public void protocoloGetUSERS() {

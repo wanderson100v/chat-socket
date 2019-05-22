@@ -17,90 +17,96 @@
 <?import javafx.scene.layout.RowConstraints?>
 <?import javafx.scene.layout.VBox?>
 
-<AnchorPane prefHeight="500.0" prefWidth="786.0" styleClass="principal" stylesheets="@aparencia.css" xmlns="http://javafx.com/javafx/8.0.171" xmlns:fx="http://javafx.com/fxml/1" fx:controller="br.com.chatredes.controller.ControleCliente">
+<AnchorPane prefHeight="500.0" prefWidth="790.0" styleClass="principal" stylesheets="@aparencia.css" xmlns="http://javafx.com/javafx/8.0.171" xmlns:fx="http://javafx.com/fxml/1" fx:controller="br.com.chatredes.controller.ControleCliente">
    <children>
-      <HBox AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
-         <children>
-            <BorderPane prefHeight="200.0" prefWidth="558.0" styleClass="corpo">
-               <top>
-                  <VBox prefHeight="157.0" prefWidth="560.0" styleClass="container-vertical" BorderPane.alignment="CENTER">
+      <BorderPane styleClass="corpo" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+         <center>
+            <HBox styleClass="container-horizontal" BorderPane.alignment="CENTER">
+               <children>
+                  <VBox styleClass="container-vertical">
                      <children>
-                        <GridPane>
-                           <columnConstraints>
-                              <ColumnConstraints hgrow="SOMETIMES" maxWidth="509.0" minWidth="10.0" prefWidth="501.0" />
-                              <ColumnConstraints hgrow="SOMETIMES" maxWidth="251.0" minWidth="10.0" prefWidth="59.0" />
-                           </columnConstraints>
-                           <rowConstraints>
-                              <RowConstraints minHeight="10.0" vgrow="SOMETIMES" />
-                           </rowConstraints>
+                        <VBox prefHeight="157.0" prefWidth="560.0" styleClass="container-vertical">
                            <children>
-                              <Label styleClass="texto-principal" text="Informações" />
-                              <Button fx:id="btnSair" mnemonicParsing="false" onAction="#clickAction" styleClass="caixa-texto" GridPane.columnIndex="1">
+                              <GridPane>
+                                 <columnConstraints>
+                                    <ColumnConstraints hgrow="SOMETIMES" maxWidth="509.0" minWidth="10.0" prefWidth="501.0" />
+                                    <ColumnConstraints hgrow="SOMETIMES" maxWidth="251.0" minWidth="10.0" prefWidth="59.0" />
+                                 </columnConstraints>
+                                 <rowConstraints>
+                                    <RowConstraints minHeight="10.0" vgrow="SOMETIMES" />
+                                 </rowConstraints>
+                                 <children>
+                                    <Label styleClass="texto-principal" text="Informações" />
+                                    <Button fx:id="btnSair" mnemonicParsing="false" onAction="#clickAction" styleClass="caixa-texto" GridPane.columnIndex="1">
+                                       <tooltip>
+                                          <Tooltip text="Sair" />
+                                       </tooltip>
+                                       <graphic>
+                                          <ImageView fitHeight="30.0" fitWidth="30.0" pickOnBounds="true" preserveRatio="true">
+                                             <image>
+                                                <Image url="@icons/exit%20(1).png" />
+                                             </image>
+                                          </ImageView>
+                                       </graphic>
+                                    </Button>
+                                 </children>
+                              </GridPane>
+                              <Separator prefWidth="200.0" />
+                              <GridPane>
+                                <columnConstraints>
+                                  <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
+                                  <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
+                                </columnConstraints>
+                                <rowConstraints>
+                                  <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                                  <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                                  <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                                </rowConstraints>
+                                 <children>
+                                    <Label styleClass="texto-status" text="Mensagens Enviadas:" />
+                                    <Label styleClass="texto-status" text="Mensagens Recebidas:" GridPane.rowIndex="1" />
+                                    <Label styleClass="texto-status" text="Status:" GridPane.rowIndex="2" />
+                                    <Label fx:id="lblEnviadas" styleClass="texto-status" text="0" GridPane.columnIndex="1" />
+                                    <Label fx:id="lblRecebidas" styleClass="texto-status" text="0" GridPane.columnIndex="1" GridPane.rowIndex="1" />
+                                    <Label fx:id="lblStatus" styleClass="texto-status" text="Offline" GridPane.columnIndex="1" GridPane.rowIndex="2" />
+                                 </children>
+                              </GridPane>
+                           </children>
+                        </VBox>
+                        <ListView fx:id="msgList" prefHeight="200.0" prefWidth="200.0" />
+                        <FlowPane prefHeight="80.0" prefWidth="560.0" styleClass="container-centro">
+                           <children>
+                              <TextField fx:id="tfdMensagem" onKeyPressed="#inputAction" promptText="Digite uma Mensagem" styleClass="caixa-texto">
                                  <tooltip>
-                                    <Tooltip text="Sair" />
+                                    <Tooltip text="Digite uma Mensagem" />
+                                 </tooltip>
+                              </TextField>
+                              <Button fx:id="btnEnviar" mnemonicParsing="false" onAction="#clickAction" styleClass="caixa-texto">
+                                 <tooltip>
+                                    <Tooltip text="Enviar" />
                                  </tooltip>
                                  <graphic>
                                     <ImageView fitHeight="30.0" fitWidth="30.0" pickOnBounds="true" preserveRatio="true">
                                        <image>
-                                          <Image url="@icons/exit%20(1).png" />
+                                          <Image url="@Icons/right.png" />
                                        </image>
                                     </ImageView>
                                  </graphic>
                               </Button>
                            </children>
-                        </GridPane>
-                        <Separator prefWidth="200.0" />
-                        <GridPane>
-                          <columnConstraints>
-                            <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
-                            <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
-                          </columnConstraints>
-                          <rowConstraints>
-                            <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
-                            <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
-                            <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
-                          </rowConstraints>
-                           <children>
-                              <Label styleClass="texto-status" text="Mensagens Enviadas:" />
-                              <Label styleClass="texto-status" text="Mensagens Recebidas:" GridPane.rowIndex="1" />
-                              <Label styleClass="texto-status" text="Status:" GridPane.rowIndex="2" />
-                              <Label fx:id="lblEnviadas" styleClass="texto-status" text="0" GridPane.columnIndex="1" />
-                              <Label fx:id="lblRecebidas" styleClass="texto-status" text="0" GridPane.columnIndex="1" GridPane.rowIndex="1" />
-                              <Label fx:id="lblStatus" styleClass="texto-status" text="Offline" GridPane.columnIndex="1" GridPane.rowIndex="2" />
-                           </children>
-                        </GridPane>
+                        </FlowPane>
                      </children>
                   </VBox>
-               </top>
-               <bottom>
-                  <FlowPane prefHeight="80.0" prefWidth="560.0" styleClass="container-centro" BorderPane.alignment="CENTER">
+                  <Separator orientation="VERTICAL" prefHeight="200.0" />
+                  <VBox styleClass="container-vertical">
                      <children>
-                        <TextField fx:id="tfdMensagem" onKeyPressed="#inputAction" promptText="Digite uma Mensagem" styleClass="caixa-texto">
-                           <tooltip>
-                              <Tooltip text="Digite uma Mensagem" />
-                           </tooltip>
-                        </TextField>
-                        <Button fx:id="btnEnviar" mnemonicParsing="false" onAction="#clickAction" styleClass="caixa-texto">
-                           <tooltip>
-                              <Tooltip text="Enviar" />
-                           </tooltip>
-                           <graphic>
-                              <ImageView fitHeight="30.0" fitWidth="30.0" pickOnBounds="true" preserveRatio="true">
-                                 <image>
-                                    <Image url="@Icons/right.png" />
-                                 </image>
-                              </ImageView>
-                           </graphic>
-                        </Button>
+                        <Label styleClass="texto-principal" text="Contatos" />
+                        <ListView fx:id="userList" prefHeight="500.0" prefWidth="230.0" />
                      </children>
-                  </FlowPane>
-               </bottom>
-               <center>
-                  <ListView fx:id="msgList" prefHeight="200.0" prefWidth="200.0" BorderPane.alignment="CENTER" />
-               </center>
-            </BorderPane>
-            <ListView fx:id="userList" prefHeight="500.0" prefWidth="230.0" />
-         </children>
-      </HBox>
+                  </VBox>
+               </children>
+            </HBox>
+         </center>
+      </BorderPane>
    </children>
 </AnchorPane>

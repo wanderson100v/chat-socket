@@ -96,9 +96,7 @@ public class MensagemGlobal {
 
 	@Override
 	public String toString() {
-		return "MensagemGlobal [id=" + id + ", nomeRemetente=" + nomeRemetente + ", loginRemetente=" + loginRemetente
-				+ ", horarioEnvio=" + horarioEnvio + ", mensagem=" + mensagem + ", horaVizualizado=" + horaVizualizado
-				+ ", loginDestinatario=" + loginDestinatario + "]";
+		return nomeRemetente + ": " + mensagem + " - Recebido: " + horarioEnvio + " - Vizualizado: " + horaVizualizado;
 	}
 	
 }

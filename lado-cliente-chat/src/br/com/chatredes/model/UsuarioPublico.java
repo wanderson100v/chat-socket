@@ -53,7 +53,6 @@ public class UsuarioPublico {
 
 	@Override
 	public String toString() {
-		return "UsuarioPublico [nome=" + nome + ", login=" + login + ", ultimoLogin=" + ultimoLogin + ", estado="
-				+ estado + "]";
+		return nome + " - " + estado;
 	}
 }

@@ -68,13 +68,8 @@ public class ControleCliente extends Controle{
 		}
 		else if(obj == btnSair)
 		{
-			try {
-				if(loginCliente == null)
-					loginCliente = FXMLLoader.load(getClass().getClassLoader().getResource("br/com/chatredes/view/LoginCliente.fxml"));
-				AppCliente.changeStage(loginCliente);
-			} catch (IOException e) {
-				e.printStackTrace();
-			}
+			cliente.protocoloLOGOUT(LocalDateTime.now());
+			notificacao.mensagemAguarde();
 		}
     	
     }
@@ -99,7 +94,38 @@ public class ControleCliente extends Controle{
 	@Override
 	public void update(Observable o, Object arg) {
 		String[] respostaServidor = (String[]) arg;
-		if(respostaServidor[0].equals("USERS")) {
+		
+		System.out.println(respostaServidor[0]);
+		if(respostaServidor[0].equals("LOGOUT")){
+			if(respostaServidor[1].equals("04 EFE"))
+			{
+				try {
+					if(loginCliente == null)
+						loginCliente = FXMLLoader.load(getClass().getClassLoader().getResource("br/com/chatredes/view/LoginCliente.fxml"));
+					AppCliente.changeStage(loginCliente);
+					notificacao.mensagemSucesso();
+					System.out.println("Tela Login");
+					System.out.println(userList.getItems());
+					for(UsuarioPublico p : userList.getItems())
+					{
+						System.out.println(p.getLogin());
+						if(p.getLogin().equals(respostaServidor[2]))
+						{
+							userList.getItems().remove(p);
+							p.setEstado("offline");
+							p.setUltimoLogin(LocalDateTime.now());
+							userList.getItems().add(p);
+							System.out.println("Usuario Atualizado: "+p.getNome());
+						}
+					}
+				} catch (IOException e) {
+					e.printStackTrace();
+				}				
+			}
+			else 
+				notificacao.mensagemErro();
+		}
+		else if(respostaServidor[0].equals("USERS")) {
     		if(respostaServidor[1].equals("02 SUC"))
 			{
     			for(int i = 2; i<respostaServidor.length ; i++) {

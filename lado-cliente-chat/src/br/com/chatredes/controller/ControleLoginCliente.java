@@ -73,11 +73,11 @@ public class ControleLoginCliente extends Controle{
 			{
     			try {
 					paneCliente = FXMLLoader.load(getClass().getClassLoader().getResource("br/com/chatredes/view/Cliente.fxml"));
+					notificacao.mensagemSucesso();
+					AppCliente.changeStage(paneCliente);
 				} catch (IOException e) {
 					System.err.println("Erro ao iniciar servidor: localização - ControleLoginServidor.clickAction()");
 				}
-				notificacao.mensagemSucesso();
-    			AppCliente.changeStage(paneCliente);
 			}
 			else
 				notificacao.mensagemErro();

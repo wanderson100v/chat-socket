@@ -67,7 +67,7 @@ public class Cliente extends Observable implements Runnable {
 				}else 
 					protocoloCompleto.append(linha+"\n");
 			}
-			System.out.println("Cliente está saindo do servidor");
+			System.out.println("Cliente estï¿½ saindo do servidor");
 			operacoesDeSaida();
 			requisicoesCliente.close();
 			
@@ -120,7 +120,7 @@ public class Cliente extends Observable implements Runnable {
 				this.usuario = daoUsuario.login(requisicao[1], requisicao[2]);
 				if(this.usuario != null) {
 					clientesLogados.add(this);
-					System.out.println("Todos os clientes logados até o momento");
+					System.out.println("Todos os clientes logados atï¿½ o momento");
 					for(Cliente cliente : clientesLogados)
 						System.out.println("Cliente logado "+ cliente.usuario.getLogin());
 					respostasCliente.print(
@@ -145,13 +145,40 @@ public class Cliente extends Observable implements Runnable {
 	
 	public void protocoloLOGOUT() {
 		protocolos.put("LOGOUT",(String[] requisicao)->{
-			operacoesDeSaida();
+			
+			try {
+				usuario.setUltimoLogin(LocalDateTime.parse(requisicao[1]));
+				daoUsuario.editar(usuario);
+				
+				respostasCliente.print(
+						"LOGOUT\r\n" 
+						+"04 EFE\r\n"
+						+usuario.getLogin()+"\r\n"
+						+"\r\n");
+				
+				for (Cliente c : clientesLogados) {
+					c.respostasCliente.print(
+							"LOGOUT\r\n" 
+									+"04 EFE\r\n"
+									+usuario.getLogin()+"\r\n"
+									+"\r\n");
+				}
+				
+				operacoesDeSaida();
+				
+			} catch (DaoException e) {
+				respostasCliente.print(
+						"LOGOUT\r\n"
+						+ "+03 EXE\r\n"
+						+ "+\r\n");
+				e.printStackTrace();
+			}
 		});
 	}
 	
 	/**
-	 * ações padrão para logout, criado método a fim de também ser chamado pelo servidor para quando o socke fechar
-	 * ou seja o cliente parar de enviar requisições (pode se observar essa açaõ no método run desta mesma classe)
+	 * aï¿½ï¿½es padrï¿½o para logout, criado mï¿½todo a fim de tambï¿½m ser chamado pelo servidor para quando o socke fechar
+	 * ou seja o cliente parar de enviar requisiï¿½ï¿½es (pode se observar essa aï¿½aï¿½ no mï¿½todo run desta mesma classe)
 	 */
 	public void operacoesDeSaida() {
 		this.usuario = null;
@@ -161,7 +188,7 @@ public class Cliente extends Observable implements Runnable {
 	public void protocoloGetUSERS() {
 		protocolos.put("GET/ USERS",(String[] requisicao)->{
 			try {
-				System.out.println("iniciando protocolo de dados publicos de todos os usuários do lado do servidor");
+				System.out.println("iniciando protocolo de dados publicos de todos os usuï¿½rios do lado do servidor");
 				List<UsuarioPublico> usuarios = daoUsuario.buscarTodos();
 				String protocolo = 
 						"USERS\r\n"
@@ -210,7 +237,7 @@ public class Cliente extends Observable implements Runnable {
 			Mensagem mensagem = new Mensagem(horarioEnvio, texto,TipoMensagem.global,usuario);
 			try {
 				// cadastrando menssagem em banco e destinando a cada individou, a fim de
-				// possibilidade de validação de que visualizou.
+				// possibilidade de validaï¿½ï¿½o de que visualizou.
 				daoMensagem.cadastrar(mensagem);
 				System.out.println("cadastrando mensagem = "+ mensagem);
 				for(Usuario destinatario : daoUsuario.buscarAll()) {
@@ -219,7 +246,7 @@ public class Cliente extends Observable implements Runnable {
 				}
 				// avisar a todos os clientes ativos
 				for(Cliente clienteReceptor :clientesLogados) {
-					System.out.println("enviando mensagem para clientes ativos através do protocolo");
+					System.out.println("enviando mensagem para clientes ativos atravï¿½s do protocolo");
 					clienteReceptor.respostasCliente.print(
 							"MSG\r\n"
 							+"04 EFE\r\n"
