@@ -53,8 +53,11 @@ public class ControleCliente extends Controle{
     
     @Override
 	public void init() {
+    	userList.getItems().clear();
+		msgList.getItems().clear();
     	Cliente.getInstance().protocoloGetUSERS();
     	Cliente.getInstance().protocoloGetMSG();
+    	lblStatus.setText("Online");
     }
     
     @FXML
@@ -70,6 +73,17 @@ public class ControleCliente extends Controle{
 		{
 			cliente.protocoloLOGOUT(LocalDateTime.now());
 			notificacao.mensagemAguarde();
+			userList.getItems().clear();
+			msgList.getItems().clear();
+				try {
+					if(loginCliente == null)
+						loginCliente = FXMLLoader.load(getClass().getClassLoader().getResource("br/com/chatredes/view/LoginCliente.fxml"));
+					AppCliente.changeStage(loginCliente);
+					notificacao.mensagemSucesso();
+				} catch (IOException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
 		}
     	
     }
@@ -87,8 +101,10 @@ public class ControleCliente extends Controle{
     private void enviarMensagem()
     {
     	String msg = tfdMensagem.getText().trim();
-    	if(msg.length() > 0)
+    	if(msg.length() > 0) {
     		cliente.protocoloMSG(LocalDateTime.now(),tfdMensagem.getText());
+    		tfdMensagem.setText("");
+    	}
     }
 
 	@Override
@@ -96,31 +112,37 @@ public class ControleCliente extends Controle{
 		String[] respostaServidor = (String[]) arg;
 		
 		System.out.println(respostaServidor[0]);
+		if(respostaServidor[0].equals("LOGIN")){
+			if(respostaServidor[1].equals("02 SUC")) {
+				for(UsuarioPublico p : userList.getItems())
+				{
+					System.out.println(p.getLogin());
+					if(p.getLogin().equals(respostaServidor[2]))
+					{
+						userList.getItems().remove(p);
+						p.setEstado("online");
+						p.setUltimoLogin(LocalDateTime.now());
+						userList.getItems().add(p);
+						System.out.println("Usuario Atualizado: "+p.getNome());
+					}
+				}
+			}
+		}
 		if(respostaServidor[0].equals("LOGOUT")){
 			if(respostaServidor[1].equals("04 EFE"))
 			{
-				try {
-					if(loginCliente == null)
-						loginCliente = FXMLLoader.load(getClass().getClassLoader().getResource("br/com/chatredes/view/LoginCliente.fxml"));
-					AppCliente.changeStage(loginCliente);
-					notificacao.mensagemSucesso();
-					System.out.println("Tela Login");
-					System.out.println(userList.getItems());
-					for(UsuarioPublico p : userList.getItems())
+				for(UsuarioPublico p : userList.getItems())
+				{
+					System.out.println(p.getLogin());
+					if(p.getLogin().equals(respostaServidor[2]))
 					{
-						System.out.println(p.getLogin());
-						if(p.getLogin().equals(respostaServidor[2]))
-						{
-							userList.getItems().remove(p);
-							p.setEstado("offline");
-							p.setUltimoLogin(LocalDateTime.now());
-							userList.getItems().add(p);
-							System.out.println("Usuario Atualizado: "+p.getNome());
-						}
+						userList.getItems().remove(p);
+						p.setEstado("offline");
+						p.setUltimoLogin(LocalDateTime.now());
+						userList.getItems().add(p);
+						System.out.println("Usuario Atualizado: "+p.getNome());
 					}
-				} catch (IOException e) {
-					e.printStackTrace();
-				}				
+				}
 			}
 			else 
 				notificacao.mensagemErro();

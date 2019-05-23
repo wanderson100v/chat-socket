@@ -122,11 +122,18 @@ public class Cliente extends Observable implements Runnable {
 					clientesLogados.add(this);
 					System.out.println("Todos os clientes logados at� o momento");
 					for(Cliente cliente : clientesLogados)
-						System.out.println("Cliente logado "+ cliente.usuario.getLogin());
-					respostasCliente.print(
-							"LOGIN\r\n"
-							+ "02 SUC\r\n"
-									+ "\r\n");
+						cliente.respostasCliente.print(
+								"LOGIN\r\n"
+										+ "02 SUC\r\n"
+										+requisicao[1]+"\r\n"
+										+"\r\n");
+						
+//					respostasCliente.print(
+//							"LOGIN\r\n"
+//							+ "02 SUC\r\n"
+//							+requisicao[1]+"\r\n"
+//							+"\r\n");
+					
 				}
 				else
 					respostasCliente.print(
@@ -188,7 +195,7 @@ public class Cliente extends Observable implements Runnable {
 	public void protocoloGetUSERS() {
 		protocolos.put("GET/ USERS",(String[] requisicao)->{
 			try {
-				System.out.println("iniciando protocolo de dados publicos de todos os usu�rios do lado do servidor");
+				System.out.println("iniciando protocolo de dados publicos de todos os usuários do lado do servidor");
 				List<UsuarioPublico> usuarios = daoUsuario.buscarTodos();
 				String protocolo = 
 						"USERS\r\n"
