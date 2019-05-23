@@ -89,6 +89,14 @@ public class Cliente extends Observable{
 				+"\r\n");
 	}
 	
+	public void protocoloGetMSGPRIV(String remetente,String destinatario) {
+		requisicaoServidor.print(
+				"GET/ MSG\r\n"
+				+remetente+"\r\n"
+				+destinatario+"\r\n"
+				+"\r\n");
+	}
+	
 	public void protocoloMSG(LocalDateTime horario,String texto) {
 		DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
 		requisicaoServidor.print(
@@ -98,6 +106,15 @@ public class Cliente extends Observable{
 				+"\r\n");
 	}
 	
+	public void protocoloMSGPRIV(String destinatario, LocalDateTime horario,String texto) {
+		DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
+		requisicaoServidor.print(
+				"MSG\r\n"
+				+horario.format(formatter)+"\r\n"
+				+texto+"\r\n"
+				+destinatario+"\r\n"
+				+"\r\n");
+	}
 	
 	public void protocoloDIGIT() {
 		

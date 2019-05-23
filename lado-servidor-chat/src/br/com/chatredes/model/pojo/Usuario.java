@@ -4,6 +4,7 @@
 package br.com.chatredes.model.pojo;
 
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -114,7 +115,7 @@ public class Usuario extends Entidade{
 
 	@Override
 	public String toString() {
-		return nome+";"+login+";"+ultimoLogin;
+		return nome + ";" + login +";"+((ultimoLogin != null)?ultimoLogin.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm")):"null");
 	}
 
 	public LocalDateTime getUltimoLogin() {

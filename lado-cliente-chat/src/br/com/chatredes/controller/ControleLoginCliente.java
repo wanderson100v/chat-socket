@@ -1,10 +1,12 @@
 package br.com.chatredes.controller;
 
 import java.io.IOException;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.Observable;
 
 import br.com.chatredes.app.AppCliente;
-import javafx.application.Platform;
+import br.com.chatredes.model.UsuarioPublico;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -31,11 +33,14 @@ public class ControleLoginCliente extends Controle{
 	private Button btnCancelar;
 
 	private Pane paneCliente;
+	
 	private Pane paneCadastro;
 
+	private UsuarioPublico usuarioLogado;
+	
 	@Override
 	public void init() {
-		// TODO Auto-generated method stub
+		
 	}
 
 	@FXML
@@ -71,8 +76,16 @@ public class ControleLoginCliente extends Controle{
 		if(respostaServidor[0].equals("LOGIN")) {
     		if(respostaServidor[1].equals("02 SUC"))
 			{
+    			if(usuarioLogado == null)
+					usuarioLogado = converterStringEmUsuarioPublico(respostaServidor[3]);
+				System.out.println("Usuario Logado: "+usuarioLogado);
+    			
     			try {
-					paneCliente = FXMLLoader.load(getClass().getClassLoader().getResource("br/com/chatredes/view/Cliente.fxml"));
+    				
+    				FXMLLoader loader = new FXMLLoader(getClass().getClassLoader().getResource("br/com/chatredes/view/Cliente.fxml")); 
+					paneCliente = loader.load();
+					ControleCliente cliente = loader.getController();
+					cliente.setUsuarioLogado(usuarioLogado);
 					notificacao.mensagemSucesso();
 					AppCliente.changeStage(paneCliente);
 				} catch (IOException e) {
@@ -84,4 +97,18 @@ public class ControleLoginCliente extends Controle{
 		}
 	}
 
+	private UsuarioPublico converterStringEmUsuarioPublico(String linha) {
+		String[] atributosUser = linha.split(";");
+		
+		System.out.println("Linha: "+linha);
+		
+		for (String string : atributosUser) {
+			System.out.println("Atributo: "+string);
+		}
+		
+		return new UsuarioPublico(atributosUser[0],
+				atributosUser[1],((!atributosUser[2].equals("null"))?LocalDateTime.parse(atributosUser[2],
+						DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm")): null), atributosUser[3]);
+	}
+	
 }

@@ -8,6 +8,7 @@ import javax.persistence.Id;
 
 import org.hibernate.annotations.Subselect;
 
+import br.com.chatredes.model.enums.TipoMensagem;
 import jdk.nashorn.internal.ir.annotations.Immutable;
 
 @Entity
@@ -19,12 +20,12 @@ import jdk.nashorn.internal.ir.annotations.Immutable;
 		+ "destinatario.login as loginDestinatario, "
 		+ "msg.horario_envio as horarioEnvio, "
 		+ "msg.texto as mensagem, "
-		+ "dest.h_visu as horaVizualizado "
+		+ "dest.h_visu as horaVizualizado, "
+		+ "msg.tipo as tipo "
 		+ "from Usuario remetente "
 		+ "inner join Mensagem msg on(msg.remetente_id = remetente.id) "
 		+ "inner join Destinado dest on(dest.mensagem_id = msg.id) "
-		+ "inner join Usuario destinatario on(dest.destinatario_id = destinatario.id) "
-		+ "where msg.tipo = 0")
+		+ "inner join Usuario destinatario on(dest.destinatario_id = destinatario.id)")
 public class MensagemGlobal {
 
 	@Id
@@ -39,6 +40,8 @@ public class MensagemGlobal {
 	private String mensagem;
 	
 	private LocalDateTime horaVizualizado;
+	
+	private TipoMensagem tipo;
 	
 	private String loginDestinatario;
 	
@@ -117,10 +120,19 @@ public class MensagemGlobal {
 		this.horaVizualizado = horaVizualizado;
 	}
 
+	public TipoMensagem getTipo() {
+		return tipo;
+	}
+	
+	public void setTipo(TipoMensagem tipo) {
+		this.tipo = tipo;
+	}
+	
 	@Override
 	public String toString() {
 		return id + ";" + nomeRemetente + ";" + loginRemetente + ";" + ((horarioEnvio != null)?horarioEnvio.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm")):"null") + ";" 
 				+ mensagem + ";" + ((horaVizualizado != null)?horaVizualizado.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm")):"null")+ ";" + loginDestinatario;
 	}
+
 	
 }

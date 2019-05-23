@@ -120,19 +120,18 @@ public class Cliente extends Observable implements Runnable {
 				this.usuario = daoUsuario.login(requisicao[1], requisicao[2]);
 				if(this.usuario != null) {
 					clientesLogados.add(this);
-					System.out.println("Todos os clientes logados at� o momento");
-					for(Cliente cliente : clientesLogados)
-						cliente.respostasCliente.print(
-								"LOGIN\r\n"
-										+ "02 SUC\r\n"
-										+requisicao[1]+"\r\n"
-										+"\r\n");
-						
-//					respostasCliente.print(
-//							"LOGIN\r\n"
-//							+ "02 SUC\r\n"
-//							+requisicao[1]+"\r\n"
-//							+"\r\n");
+					System.out.println("Todos os clientes logados até o momento");
+					
+					String protocolo = 
+							"LOGIN\r\n"
+							+"02 SUC\r\n"
+							+requisicao[1]+"\r\n";
+
+					protocolo+= usuario.toString()+";"
+					+((buscarUsuarioNaListaDeLogados(usuario.getLogin()))? "online":"offline")+"\r\n";
+					protocolo+="\r\n";
+					
+					notificarTodosClientes(protocolo);
 					
 				}
 				else
@@ -157,19 +156,10 @@ public class Cliente extends Observable implements Runnable {
 				usuario.setUltimoLogin(LocalDateTime.parse(requisicao[1]));
 				daoUsuario.editar(usuario);
 				
-				respostasCliente.print(
-						"LOGOUT\r\n" 
+				notificarTodosClientes("LOGOUT\r\n"
 						+"04 EFE\r\n"
 						+usuario.getLogin()+"\r\n"
 						+"\r\n");
-				
-				for (Cliente c : clientesLogados) {
-					c.respostasCliente.print(
-							"LOGOUT\r\n" 
-									+"04 EFE\r\n"
-									+usuario.getLogin()+"\r\n"
-									+"\r\n");
-				}
 				
 				operacoesDeSaida();
 				
@@ -216,59 +206,130 @@ public class Cliente extends Observable implements Runnable {
 	
 	public void protocoloGetMSG() {
 		protocolos.put("GET/ MSG",(String[] requisicao)->{
-			try {
-				System.out.println("iniciando protocolo de buscar mensagem globais do lado do servidor");
-				List<MensagemGlobal> mensagensGlobais =  daoMensagem.buscarMensagensGlobais(this.usuario.getLogin());
-				String protocolo = "MSG\r\n"
-								 + "02 SUC\r\n";
-				for(MensagemGlobal mensagemGlobal :mensagensGlobais)
-					protocolo+= mensagemGlobal+"\r\n";
-				protocolo+= "\r\n";
-				System.out.println("mensagens globais que seram enviadas para o cliente");
-				System.out.println(protocolo);
-				respostasCliente.print(protocolo);
-			} catch (DaoException e) {
-				respostasCliente.print(
-						"MSG\r\n"
-						+ "03 EXE\r\n"
-								+ "\r\n");
+			
+			if(requisicao.length > 1 && requisicao[1] != null)
+			{
+				try {
+					
+					List<MensagemGlobal> mensagensGlobais =  daoMensagem
+							.buscarMensagensPrivadas(requisicao[1], requisicao[2]);
+					String protocolo = "MSG PRIV\r\n"
+							+ "02 SUC\r\n";
+					for(MensagemGlobal mensagemGlobal :mensagensGlobais)
+						protocolo+= mensagemGlobal+"\r\n";
+					protocolo+= "\r\n";
+					
+					respostasCliente.print(protocolo);
+					
+				} catch (DaoException e) {
+					respostasCliente.print(
+							"MSG\r\n"
+									+ "03 EXE\r\n"
+									+ "\r\n");
+				}
 			}
+			else
+			{
+				try {
+					System.out.println("iniciando protocolo de buscar mensagem globais do lado do servidor");
+					List<MensagemGlobal> mensagensGlobais =  daoMensagem.buscarMensagensGlobais(this.usuario.getLogin());
+					String protocolo = "MSG\r\n"
+							+ "02 SUC\r\n";
+					for(MensagemGlobal mensagemGlobal :mensagensGlobais)
+						protocolo+= mensagemGlobal+"\r\n";
+					protocolo+= "\r\n";
+					System.out.println("mensagens globais que seram enviadas para o cliente");
+					System.out.println(protocolo);
+					respostasCliente.print(protocolo);
+				} catch (DaoException e) {
+					respostasCliente.print(
+							"MSG\r\n"
+									+ "03 EXE\r\n"
+									+ "\r\n");
+				}
+			}
+			
 		});
 	}
 	
 	public void protocoloMSG() {
 		protocolos.put("MSG",(String[] requisicao)->{
-			System.out.println("iniciando protocolo de envio de mensagem do lado do servidor");
-			LocalDateTime horarioEnvio = LocalDateTime.parse(requisicao[1], DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm"));
-			String texto = requisicao[2];
-			Mensagem mensagem = new Mensagem(horarioEnvio, texto,TipoMensagem.global,usuario);
-			try {
-				// cadastrando menssagem em banco e destinando a cada individou, a fim de
-				// possibilidade de valida��o de que visualizou.
-				daoMensagem.cadastrar(mensagem);
-				System.out.println("cadastrando mensagem = "+ mensagem);
-				for(Usuario destinatario : daoUsuario.buscarAll()) {
-					daoDestinado.cadastrar(new Destinado(destinatario, mensagem));
-					System.out.println("enviando mensagem para "+destinatario.getLogin());
-				}
-				// avisar a todos os clientes ativos
-				for(Cliente clienteReceptor :clientesLogados) {
-					System.out.println("enviando mensagem para clientes ativos atrav�s do protocolo");
-					clienteReceptor.respostasCliente.print(
-							"MSG\r\n"
-							+"04 EFE\r\n"
-							+"GLOBAL\r\n"
-							+(new MensagemGlobal(mensagem.getId(),usuario.getNome(),
-									usuario.getLogin(), horarioEnvio, texto,
-									clienteReceptor.usuario.getLogin()))+"\r\n"
-							+"\r\n"
+			System.out.println(requisicao.length);
+			if(requisicao.length > 3)
+			{
+				LocalDateTime horarioEnvio = LocalDateTime.parse(requisicao[1], DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm"));
+				String texto = requisicao[2];
+				Mensagem mensagem = new Mensagem(horarioEnvio, texto, TipoMensagem.PRIVADO, usuario);
+				try {
+					
+					daoMensagem.cadastrar(mensagem);
+					
+					for(Usuario destinatario : daoUsuario.buscarAll()) {
+						if(destinatario.getLogin().equals(requisicao[3]))
+							daoDestinado.cadastrar(new Destinado(destinatario, mensagem));
+					}
+					
+					// avisar a todos os clientes ativos
+					for(Cliente clienteReceptor : clientesLogados) {
+						if(clienteReceptor.usuario.getLogin().equals(requisicao[3]))
+							clienteReceptor.respostasCliente.print(
+									"MSG PRIV\r\n"
+											+"04 EFE\r\n"
+											+"PRIVADA\r\n"
+											+(new MensagemGlobal(mensagem.getId(),usuario.getNome(),
+													usuario.getLogin(), horarioEnvio, texto,
+													clienteReceptor.usuario.getLogin()))+"\r\n"
+													+"\r\n"
+									);
+					}
+					respostasCliente.print(
+							"MSG PRIV\r\n"
+									+"04 EFE\r\n"
+									+"PRIVADA\r\n"
+									+(new MensagemGlobal(mensagem.getId(),usuario.getNome(),
+											usuario.getLogin(), horarioEnvio, texto,
+											requisicao[3]))+"\r\n"
+											+"\r\n"
 							);
+					
+				} catch (DaoException e) {
+					e.printStackTrace();
 				}
-				
-				
-			} catch (DaoException e) {
-				e.printStackTrace();
 			}
+			else
+			{
+				System.out.println("iniciando protocolo de envio de mensagem do lado do servidor");
+				LocalDateTime horarioEnvio = LocalDateTime.parse(requisicao[1], DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm"));
+				String texto = requisicao[2];
+				Mensagem mensagem = new Mensagem(horarioEnvio, texto,TipoMensagem.GLOBAL,usuario);
+				try {
+					// cadastrando menssagem em banco e destinando a cada individou, a fim de
+					// possibilidade de validação de que visualizou.
+					daoMensagem.cadastrar(mensagem);
+					System.out.println("cadastrando mensagem = "+ mensagem);
+					for(Usuario destinatario : daoUsuario.buscarAll()) {
+						daoDestinado.cadastrar(new Destinado(destinatario, mensagem));
+						System.out.println("enviando mensagem para "+destinatario.getLogin());
+					}
+					// avisar a todos os clientes ativos
+					for(Cliente clienteReceptor :clientesLogados) {
+						System.out.println("enviando mensagem para clientes ativos através do protocolo");
+						clienteReceptor.respostasCliente.print(
+								"MSG\r\n"
+										+"04 EFE\r\n"
+										+"GLOBAL\r\n"
+										+(new MensagemGlobal(mensagem.getId(),usuario.getNome(),
+												usuario.getLogin(), horarioEnvio, texto,
+												clienteReceptor.usuario.getLogin()))+"\r\n"
+												+"\r\n"
+								);
+					}
+					
+				} catch (DaoException e) {
+					e.printStackTrace();
+				}
+			}
+			
 			
 		});
 	}
@@ -306,4 +367,9 @@ public class Cliente extends Observable implements Runnable {
 		return false;
 	}
 	
+	private void notificarTodosClientes(String resposta)
+	{
+		for (Cliente c : clientesLogados)
+			c.respostasCliente.print(resposta);
+	}
 }

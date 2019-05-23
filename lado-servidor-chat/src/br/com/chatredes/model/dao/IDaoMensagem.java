@@ -17,4 +17,6 @@ public interface IDaoMensagem extends IDao<Mensagem> {
 
 	public List<MensagemGlobal> buscarMensagensGlobais(String loginDestinatario) throws DaoException;
 	
+	public List<MensagemGlobal> buscarMensagensPrivadas(String loginRemetente, String loginDestinatario) throws DaoException;
+	
 }

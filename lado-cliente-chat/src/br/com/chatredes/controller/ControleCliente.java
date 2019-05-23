@@ -8,6 +8,7 @@ import java.util.Observable;
 import br.com.chatredes.app.AppCliente;
 import br.com.chatredes.model.MensagemGlobal;
 import br.com.chatredes.model.UsuarioPublico;
+import br.com.chatredes.view.Dialogo;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -51,13 +52,27 @@ public class ControleCliente extends Controle{
     
     private Pane loginCliente;
     
+    private Dialogo dialogo;
+    
+    private UsuarioPublico usuarioLogado;
+    
     @Override
 	public void init() {
+    	
+    	dialogo = Dialogo.getInstance();
+    	
     	userList.getItems().clear();
 		msgList.getItems().clear();
     	Cliente.getInstance().protocoloGetUSERS();
     	Cliente.getInstance().protocoloGetMSG();
     	lblStatus.setText("Online");
+    	
+    	userList.setOnMouseClicked(e -> {
+    		if (e.getClickCount() > 1)
+    			if (userList.getSelectionModel().getSelectedItem() != null) {
+    				dialogo.show(usuarioLogado, userList.getSelectionModel().getSelectedItem());
+    			}
+    	});
     }
     
     @FXML
@@ -80,8 +95,8 @@ public class ControleCliente extends Controle{
 						loginCliente = FXMLLoader.load(getClass().getClassLoader().getResource("br/com/chatredes/view/LoginCliente.fxml"));
 					AppCliente.changeStage(loginCliente);
 					notificacao.mensagemSucesso();
+					usuarioLogado = null;
 				} catch (IOException e) {
-					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
 		}
@@ -112,36 +127,46 @@ public class ControleCliente extends Controle{
 		String[] respostaServidor = (String[]) arg;
 		
 		System.out.println(respostaServidor[0]);
+		
 		if(respostaServidor[0].equals("LOGIN")){
 			if(respostaServidor[1].equals("02 SUC")) {
-				for(UsuarioPublico p : userList.getItems())
-				{
-					System.out.println(p.getLogin());
-					if(p.getLogin().equals(respostaServidor[2]))
+				try {
+					for(UsuarioPublico p : userList.getItems())
 					{
-						userList.getItems().remove(p);
-						p.setEstado("online");
-						p.setUltimoLogin(LocalDateTime.now());
-						userList.getItems().add(p);
-						System.out.println("Usuario Atualizado: "+p.getNome());
+						System.out.println(p.getLogin());
+						if(p.getLogin().equals(respostaServidor[2]))
+						{
+							userList.getItems().remove(p);
+							p.setEstado("online");
+							p.setUltimoLogin(LocalDateTime.now());
+							userList.getItems().add(p);
+							System.out.println("Estado do Usuario Atualizado: "+p.getNome());							
+						}
 					}
+				} catch (Exception e) {
 				}
+				
+				
 			}
 		}
 		if(respostaServidor[0].equals("LOGOUT")){
 			if(respostaServidor[1].equals("04 EFE"))
 			{
-				for(UsuarioPublico p : userList.getItems())
-				{
-					System.out.println(p.getLogin());
-					if(p.getLogin().equals(respostaServidor[2]))
+				try {
+					for(UsuarioPublico p : userList.getItems())
 					{
-						userList.getItems().remove(p);
-						p.setEstado("offline");
-						p.setUltimoLogin(LocalDateTime.now());
-						userList.getItems().add(p);
-						System.out.println("Usuario Atualizado: "+p.getNome());
+						System.out.println(p.getLogin());
+						if(p.getLogin().equals(respostaServidor[2]))
+						{
+							userList.getItems().remove(p);
+							p.setEstado("offline");
+							p.setUltimoLogin(LocalDateTime.now());
+							userList.getItems().add(p);
+							System.out.println("Estado do Usuario Atualizado: "+p.getNome());
+
+						}
 					}
+				} catch (Exception e) {
 				}
 			}
 			else 
@@ -185,8 +210,13 @@ public class ControleCliente extends Controle{
 	
 	private UsuarioPublico converterStringEmUsuarioPublico(String linha) {
 		String[] atributosUser = linha.split(";");
+		
 		return new UsuarioPublico(atributosUser[0],
 				atributosUser[1],((!atributosUser[2].equals("null"))?LocalDateTime.parse(atributosUser[2],
 						DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm")): null), atributosUser[3]);
+	}
+	
+	public void setUsuarioLogado(UsuarioPublico usuarioLogado) {
+		this.usuarioLogado = usuarioLogado;
 	}
 }

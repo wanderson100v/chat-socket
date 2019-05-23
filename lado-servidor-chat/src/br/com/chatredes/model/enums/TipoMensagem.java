@@ -8,7 +8,7 @@ package br.com.chatredes.model.enums;
  *
  */
 public enum TipoMensagem {
-	global("Global"), privado("Privado");
+	GLOBAL("Global"), PRIVADO("Privado");
 	
 	private String value;
 	
