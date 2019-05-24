@@ -28,7 +28,6 @@ public class AppCliente extends Application {
 			primaryStage.setScene(sceneCliente);
 			primaryStage.setTitle("Cliente");
 			primaryStage.setResizable(false);
-//			primaryStage.getIcons().add(new Image(""));
 			primaryStage.centerOnScreen();
 			primaryStage.show();
 			

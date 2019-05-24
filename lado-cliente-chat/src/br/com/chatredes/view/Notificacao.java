@@ -5,9 +5,7 @@ import java.util.Optional;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.ButtonType;
-import javafx.scene.image.Image;
 import javafx.stage.Modality;
-import javafx.stage.Stage;
 
 public class Notificacao {
 
@@ -22,9 +20,6 @@ public class Notificacao {
 		alert.setHeaderText("");
 		alert.setContentText("");
 
-//		((Stage) alert.getDialogPane().getScene().getWindow()).getIcons()
-//		.add(new Image(getClass().getClassLoader().getResourceAsStream("Icon.png")));
-
 		alert.initModality(Modality.APPLICATION_MODAL);
 	}
 
@@ -38,7 +33,7 @@ public class Notificacao {
 	{
 		alert.setAlertType(AlertType.WARNING);
 		alert.setTitle("Aguarde");
-		alert.setContentText("Aguardando finalizaÃ§Ã£o da operaÃ§Ã£o");
+		alert.setContentText("Aguardando finalização da operação");
 		alert.show();
 		
 	}
@@ -47,15 +42,15 @@ public class Notificacao {
 	{
 		alert.setAlertType(AlertType.ERROR);
 		alert.setTitle("Erro!!!");
-		alert.setContentText("OperaÃ§Ã£o nÃ£o pode ser concluida!!!");
+		alert.setContentText("Operação não pode ser concluída!!!");
 		alert.show();
 	}
 	
 	public void mensagemSucesso()
 	{
 		alert.setAlertType(AlertType.INFORMATION);
-		alert.setTitle("Concluido");
-		alert.setContentText("OperaÃ§Ã£o concluida com sucesso");
+		alert.setTitle("Concluído");
+		alert.setContentText("Operação concluída com sucesso");
 		alert.show();
 	}
 	

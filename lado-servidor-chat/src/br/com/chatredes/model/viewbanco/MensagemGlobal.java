@@ -130,9 +130,12 @@ public class MensagemGlobal {
 	
 	@Override
 	public String toString() {
+		return nomeRemetente + ": " + mensagem + " - Recebido: " + horarioEnvio;
+	}
+
+	public String toMensagem() {
 		return id + ";" + nomeRemetente + ";" + loginRemetente + ";" + ((horarioEnvio != null)?horarioEnvio.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm")):"null") + ";" 
 				+ mensagem + ";" + ((horaVizualizado != null)?horaVizualizado.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm")):"null")+ ";" + loginDestinatario;
 	}
-
 	
 }

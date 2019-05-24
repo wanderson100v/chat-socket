@@ -115,6 +115,10 @@ public class Usuario extends Entidade{
 
 	@Override
 	public String toString() {
+		return nome + " - " + login;
+	}
+	
+	public String toUsuario() {
 		return nome + ";" + login +";"+((ultimoLogin != null)?ultimoLogin.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm")):"null");
 	}
 

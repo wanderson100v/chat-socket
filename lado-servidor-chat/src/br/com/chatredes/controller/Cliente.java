@@ -38,6 +38,8 @@ public class Cliente extends Observable implements Runnable {
 	
 	private Usuario usuario;
 	
+	private Servidor servidor;
+	
 	private PrintStream respostasCliente;
 	
 	public Cliente(Socket socket) {
@@ -46,7 +48,7 @@ public class Cliente extends Observable implements Runnable {
 		this.daoUsuario = new DaoUsuario();
 		this.daoMensagem = new DaoMensagem();
 		this.daoDestinado = new DaoDestinado();
-		
+		this.servidor = Servidor.getInstance();
 	}
 
 	@Override
@@ -127,12 +129,13 @@ public class Cliente extends Observable implements Runnable {
 							+"02 SUC\r\n"
 							+requisicao[1]+"\r\n";
 
-					protocolo+= usuario.toString()+";"
+					protocolo+= usuario.toUsuario()+";"
 					+((buscarUsuarioNaListaDeLogados(usuario.getLogin()))? "online":"offline")+"\r\n";
 					protocolo+="\r\n";
 					
 					notificarTodosClientes(protocolo);
 					
+					servidor.notificarOuvintes(clientesLogados);
 				}
 				else
 					respostasCliente.print(
@@ -180,6 +183,7 @@ public class Cliente extends Observable implements Runnable {
 	public void operacoesDeSaida() {
 		this.usuario = null;
 		clientesLogados.remove(this);
+		servidor.notificarOuvintes(clientesLogados);
 	}
 	
 	public void protocoloGetUSERS() {
@@ -191,7 +195,7 @@ public class Cliente extends Observable implements Runnable {
 						"USERS\r\n"
 						+ "02 SUC\r\n";
 				for(UsuarioPublico usuario: usuarios) 
-							protocolo+= usuario.toString()+";"
+							protocolo+= usuario.toUsuario()+";"
 							+((buscarUsuarioNaListaDeLogados(usuario.getLogin()))? "online":"offline")+"\r\n";
 				protocolo+="\r\n";
 				respostasCliente.print(protocolo);
@@ -216,7 +220,7 @@ public class Cliente extends Observable implements Runnable {
 					String protocolo = "MSG PRIV\r\n"
 							+ "02 SUC\r\n";
 					for(MensagemGlobal mensagemGlobal :mensagensGlobais)
-						protocolo+= mensagemGlobal+"\r\n";
+						protocolo+= mensagemGlobal.toMensagem()+"\r\n";
 					protocolo+= "\r\n";
 					
 					respostasCliente.print(protocolo);
@@ -236,7 +240,7 @@ public class Cliente extends Observable implements Runnable {
 					String protocolo = "MSG\r\n"
 							+ "02 SUC\r\n";
 					for(MensagemGlobal mensagemGlobal :mensagensGlobais)
-						protocolo+= mensagemGlobal+"\r\n";
+						protocolo+= mensagemGlobal.toMensagem()+"\r\n";
 					protocolo+= "\r\n";
 					System.out.println("mensagens globais que seram enviadas para o cliente");
 					System.out.println(protocolo);
@@ -278,7 +282,7 @@ public class Cliente extends Observable implements Runnable {
 											+"PRIVADA\r\n"
 											+(new MensagemGlobal(mensagem.getId(),usuario.getNome(),
 													usuario.getLogin(), horarioEnvio, texto,
-													clienteReceptor.usuario.getLogin()))+"\r\n"
+													clienteReceptor.usuario.getLogin())).toMensagem()+"\r\n"
 													+"\r\n"
 									);
 					}
@@ -288,7 +292,7 @@ public class Cliente extends Observable implements Runnable {
 									+"PRIVADA\r\n"
 									+(new MensagemGlobal(mensagem.getId(),usuario.getNome(),
 											usuario.getLogin(), horarioEnvio, texto,
-											requisicao[3]))+"\r\n"
+											requisicao[3])).toMensagem()+"\r\n"
 											+"\r\n"
 							);
 					
@@ -314,15 +318,20 @@ public class Cliente extends Observable implements Runnable {
 					// avisar a todos os clientes ativos
 					for(Cliente clienteReceptor :clientesLogados) {
 						System.out.println("enviando mensagem para clientes ativos através do protocolo");
+						
+						MensagemGlobal global = new MensagemGlobal(mensagem.getId(),usuario.getNome(),
+								usuario.getLogin(), horarioEnvio, texto,
+								clienteReceptor.usuario.getLogin()); 
+						
 						clienteReceptor.respostasCliente.print(
 								"MSG\r\n"
 										+"04 EFE\r\n"
 										+"GLOBAL\r\n"
-										+(new MensagemGlobal(mensagem.getId(),usuario.getNome(),
-												usuario.getLogin(), horarioEnvio, texto,
-												clienteReceptor.usuario.getLogin()))+"\r\n"
+										+global.toMensagem()+"\r\n"
 												+"\r\n"
 								);
+						
+						servidor.notificarOuvintes(global);
 					}
 					
 				} catch (DaoException e) {
@@ -371,5 +380,10 @@ public class Cliente extends Observable implements Runnable {
 	{
 		for (Cliente c : clientesLogados)
 			c.respostasCliente.print(resposta);
+	}
+	
+	@Override
+	public String toString() {
+		return usuario+"";
 	}
 }

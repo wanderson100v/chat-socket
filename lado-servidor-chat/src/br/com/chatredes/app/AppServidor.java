@@ -28,7 +28,6 @@ public class AppServidor extends Application {
 			primaryStage.setScene(sceneServidor);
 			primaryStage.setTitle("Servidor");
 			primaryStage.setResizable(false);
-//			primaryStage.getIcons().add(new Image(""));
 			primaryStage.centerOnScreen();
 			primaryStage.show();
 			

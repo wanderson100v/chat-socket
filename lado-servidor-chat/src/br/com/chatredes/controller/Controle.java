@@ -3,7 +3,6 @@
  */
 package br.com.chatredes.controller;
 
-import java.io.IOException;
 import java.net.URL;
 import java.util.ResourceBundle;
 
@@ -23,11 +22,7 @@ public abstract class Controle implements Initializable {
 	public void initialize(URL location, ResourceBundle resources) {
 		init();
 		notificacao = Notificacao.getInstance();
-		try {
-			servidor = Servidor.getInstance();
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
+		servidor = Servidor.getInstance();
 	}
 
 	/**

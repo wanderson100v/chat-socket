@@ -1,20 +1,15 @@
 package br.com.chatredes.controller;
 
 import java.io.IOException;
-import java.util.Observable;
 
 import br.com.chatredes.app.AppServidor;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.control.Button;
-import javafx.scene.control.TextField;
 import javafx.scene.layout.Pane;
 
 public class ControleLoginServidor extends Controle{
-
-	@FXML
-    private TextField tfdNome;
 
     @FXML
     private Button btnEntrar;

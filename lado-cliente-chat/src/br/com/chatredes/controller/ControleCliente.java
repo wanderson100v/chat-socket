@@ -30,25 +30,22 @@ public class ControleCliente extends Controle{
     private Button btnSair;
 
     @FXML
-    private Label lblEnviadas;
-
-    @FXML
-    private Label lblRecebidas;
+    private Label lblNome;
 
     @FXML
     private Label lblStatus;
 
     @FXML
     private TextField tfdMensagem;
+
+    @FXML
+    private Button btnEnviar;
     
     @FXML
     private ListView<MensagemGlobal> msgList;
     
     @FXML
     private ListView<UsuarioPublico> userList;
-
-    @FXML
-    private Button btnEnviar;
     
     private Pane loginCliente;
     
@@ -145,8 +142,6 @@ public class ControleCliente extends Controle{
 					}
 				} catch (Exception e) {
 				}
-				
-				
 			}
 		}
 		if(respostaServidor[0].equals("LOGOUT")){
@@ -218,5 +213,6 @@ public class ControleCliente extends Controle{
 	
 	public void setUsuarioLogado(UsuarioPublico usuarioLogado) {
 		this.usuarioLogado = usuarioLogado;
+		lblNome.setText(usuarioLogado.getNome());
 	}
 }
