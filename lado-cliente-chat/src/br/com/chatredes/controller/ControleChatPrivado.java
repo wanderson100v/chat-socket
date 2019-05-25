@@ -27,6 +27,9 @@ public class ControleChatPrivado extends Controle{
 	private Label lblStatus;
 
 	@FXML
+	private Label lblDigitando;
+
+	@FXML
 	private ListView<MensagemGlobal> msgList;
 
 	@FXML
@@ -61,6 +64,13 @@ public class ControleChatPrivado extends Controle{
 			if(!tfdMensagem.getText().trim().equals(""))
 				enviarMensagem();
 		}
+		else
+			cliente.protocoloDIGITPRIV(remetente.getLogin(), destinatario.getLogin());
+	}
+
+	@FXML
+	void outputAction(KeyEvent event) {
+		cliente.protocoloNDIGITPRIV(destinatario.getLogin());
 	}
 
 	private void enviarMensagem()
@@ -110,6 +120,17 @@ public class ControleChatPrivado extends Controle{
 					}
 				}
 		}
+		else if(respostaServidor[0].equals("DIGIT/ 02 SUC")) {
+			System.out.println(respostaServidor.length);
+			if(respostaServidor.length > 2)
+				if(remetente.getLogin().equals(respostaServidor[1]) || destinatario.getLogin().equals(respostaServidor[2]))
+					lblDigitando.setText(respostaServidor[1]+" está digitando");
+		}
+		else if(respostaServidor[0].equals("NDIGIT/ 02 SUC")) {
+			if(respostaServidor.length > 2)
+				if(remetente.getLogin().equals(respostaServidor[1]) || destinatario.getLogin().equals(respostaServidor[2]))
+						lblDigitando.setText("");
+		}
 	}
 
 	public void setUsuarios(UsuarioPublico remetente, UsuarioPublico destinatario)
@@ -136,12 +157,5 @@ public class ControleChatPrivado extends Controle{
 				atributosMsg[4]/*mensagem*/, 
 				((!atributosMsg[5].equals("null"))?LocalDateTime.parse(atributosMsg[5],DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm")): null)/*horaVizualizado*/,
 				atributosMsg[6]/*loginDestinatario*/);
-	}
-
-	private UsuarioPublico converterStringEmUsuarioPublico(String linha) {
-		String[] atributosUser = linha.split(";");
-		return new UsuarioPublico(atributosUser[0],
-				atributosUser[1],((!atributosUser[2].equals("null"))?LocalDateTime.parse(atributosUser[2],
-						DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm")): null), atributosUser[3]);
 	}
 }

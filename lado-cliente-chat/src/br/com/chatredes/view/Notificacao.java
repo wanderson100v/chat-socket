@@ -33,7 +33,7 @@ public class Notificacao {
 	{
 		alert.setAlertType(AlertType.WARNING);
 		alert.setTitle("Aguarde");
-		alert.setContentText("Aguardando finalizaÁ„o da operaÁ„o");
+		alert.setContentText("Aguardando finaliza√ß√£o da opera√ß√£o");
 		alert.show();
 		
 	}
@@ -42,15 +42,15 @@ public class Notificacao {
 	{
 		alert.setAlertType(AlertType.ERROR);
 		alert.setTitle("Erro!!!");
-		alert.setContentText("OperaÁ„o n„o pode ser concluÌda!!!");
+		alert.setContentText("Opera√ß√£o n√£o pode ser conclu√≠da!!!");
 		alert.show();
 	}
 	
 	public void mensagemSucesso()
 	{
 		alert.setAlertType(AlertType.INFORMATION);
-		alert.setTitle("ConcluÌdo");
-		alert.setContentText("OperaÁ„o concluÌda com sucesso");
+		alert.setTitle("Conclu√≠do");
+		alert.setContentText("Opera√ß√£o conclu√≠da com sucesso");
 		alert.show();
 	}
 	

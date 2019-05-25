@@ -34,6 +34,9 @@ public class ControleCliente extends Controle{
 
     @FXML
     private Label lblStatus;
+    
+    @FXML
+    private Label lblDigitando;
 
     @FXML
     private TextField tfdMensagem;
@@ -107,8 +110,16 @@ public class ControleCliente extends Controle{
     		if(!tfdMensagem.getText().trim().equals(""))
     			enviarMensagem();
     	}
-    	
+    	else {
+    		cliente.protocoloDIGIT();
+    	}
     }
+    
+    @FXML
+    void outputAction(KeyEvent event) {
+    	cliente.protocoloNDIGIT();
+    }
+
 
     private void enviarMensagem()
     {
@@ -188,6 +199,14 @@ public class ControleCliente extends Controle{
 			}
 			else
 				notificacao.mensagemErro();
+		}
+		else if(respostaServidor[0].equals("DIGIT/ 02 SUC")) {
+			if(respostaServidor.length < 3)
+				lblDigitando.setText(respostaServidor[1]+" está digitando");
+		}
+		else if(respostaServidor[0].equals("NDIGIT/ 02 SUC")) {
+			if(respostaServidor.length < 3)
+				lblDigitando.setText("");
 		}
 	}
 	

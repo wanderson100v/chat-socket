@@ -21,6 +21,7 @@ import br.com.chatredes.model.pojo.Mensagem;
 import br.com.chatredes.model.pojo.Usuario;
 import br.com.chatredes.model.viewbanco.MensagemGlobal;
 import br.com.chatredes.model.viewbanco.UsuarioPublico;
+import sun.security.action.GetLongAction;
 
 public class Cliente extends Observable implements Runnable {
 	
@@ -347,6 +348,66 @@ public class Cliente extends Observable implements Runnable {
 	public void protocoloDIGIT() {
 		protocolos.put("DIGIT",(String[] requisicao)->{
 			
+			if(requisicao.length > 1)
+			{
+				
+				for(Cliente cliente : clientesLogados)
+				{
+					if(cliente.getUsuario().getLogin().equals(requisicao[2]))
+					{
+						cliente.respostasCliente.print(
+								"DIGIT/ 02 SUC\r\n"
+								+usuario.getLogin()+"\r\n"
+								+requisicao[2]+"\r\n"
+								+"\r\n");
+						break;
+					}
+				}
+				respostasCliente.print(
+						"DIGIT/ 02 SUC\r\n"
+						+usuario.getLogin()+"\r\n"
+						+requisicao[2]+"\r\n"
+						+"\r\n");
+			}
+			else
+			{
+				notificarTodosClientes(
+						"DIGIT/ 02 SUC\r\n"
+								+usuario.getNome()+"\r\n"
+								+"\r\n");
+			}
+		});
+	}
+	
+	public void protocoloNDIGIT() {
+		protocolos.put("NDIGIT",(String[] requisicao)->{
+			
+			if(requisicao.length > 1)
+			{
+				
+				for(Cliente cliente : clientesLogados)
+				{
+					if(cliente.getUsuario().getLogin().equals(requisicao[1]))
+					{
+						cliente.respostasCliente.print("NDIGIT/ 02 SUC\r\n"
+								+usuario.getLogin()+"\r\n"
+								+requisicao[1]+"\r\n"
+								+"\r\n");
+						break;
+					}
+				}
+				respostasCliente.print("NDIGIT/ 02 SUC\r\n"
+						+usuario.getLogin()+"\r\n"
+						+requisicao[1]+"\r\n"
+						+"\r\n");
+			}
+			else
+			{
+				notificarTodosClientes(
+						"NDIGIT/ 02 SUC\r\n"
+								+usuario.getLogin()+"\r\n"
+								+"\r\n");
+			}
 		});
 	}
 	
@@ -358,14 +419,10 @@ public class Cliente extends Observable implements Runnable {
 	
 	public void protocoloGetVISU() {
 		protocolos.put("GET/ VISU",(String[] requisicao)->{
-			
-		});
-	}
-	
-	
-	public void protocoloNDIGIT() {
-		protocolos.put("NDIGIT",(String[] requisicao)->{
-			
+			notificarTodosClientes(
+					"DIGIT/ 02 SUC\r\n"
+					+usuario.getNome()+"\r\n"
+					+"\r\n");
 		});
 	}
 	
@@ -385,5 +442,9 @@ public class Cliente extends Observable implements Runnable {
 	@Override
 	public String toString() {
 		return usuario+"";
+	}
+	
+	public Usuario getUsuario() {
+		return usuario;
 	}
 }

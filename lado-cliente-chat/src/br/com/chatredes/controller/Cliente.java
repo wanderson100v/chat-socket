@@ -117,7 +117,30 @@ public class Cliente extends Observable{
 	}
 	
 	public void protocoloDIGIT() {
-		
+		requisicaoServidor.print(
+				"DIGIT\r\n"
+				+"\r\n");
+	}
+	
+	public void protocoloNDIGIT() {
+		requisicaoServidor.print(
+				"NDIGIT\r\n"
+				+"\r\n");
+	}
+	
+	public void protocoloDIGITPRIV(String remetente, String destinatario) {
+		requisicaoServidor.print(
+				"DIGIT\r\n"
+				+remetente+"\r\n"
+				+destinatario+"\r\n"
+				+"\r\n");
+	}
+	
+	public void protocoloNDIGITPRIV(String destinatario) {
+		requisicaoServidor.print(
+				"NDIGIT\r\n"
+				+destinatario+"\r\n"
+				+"\r\n");
 	}
 	
 	public void protocoloVISU() {
@@ -127,14 +150,7 @@ public class Cliente extends Observable{
 	public void protocoloGetVISU() {
 		
 	}
-	
-	
-	public void protocoloNDIGIT() {
 		
-	}
-	
-	
-	
 	// a partir desta linha está a implementação para tratar das respostas do servidor
 	private class EntradaRespostaServidor extends Thread{
 		@Override

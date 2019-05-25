@@ -1,6 +1,7 @@
 package br.com.chatredes.model;
 
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 
 public class UsuarioPublico {
 	
@@ -53,6 +54,6 @@ public class UsuarioPublico {
 
 	@Override
 	public String toString() {
-		return nome + " - " + estado;
+		return estado.equals("online") ? nome + " - " + estado : nome + " - " + ((ultimoLogin != null)?ultimoLogin.format(DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm")):"null");
 	}
 }
