@@ -3,12 +3,15 @@ package br.com.chatredes.controller;
 import java.io.IOException;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Observable;
 
 import br.com.chatredes.app.AppCliente;
 import br.com.chatredes.model.MensagemGlobal;
 import br.com.chatredes.model.UsuarioPublico;
-import br.com.chatredes.view.Dialogo;
+import br.com.chatredes.view.DialogoDtlMsgPublica;
+import br.com.chatredes.view.DialogoPrivado;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -18,7 +21,9 @@ import javafx.scene.control.ListView;
 import javafx.scene.control.TextField;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
+import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.Pane;
+import jdk.nashorn.internal.runtime.ListAdapter;
 
 /**
  * @author Mael Santos
@@ -52,14 +57,16 @@ public class ControleCliente extends Controle{
     
     private Pane loginCliente;
     
-    private Dialogo dialogo;
+    private DialogoPrivado dialogo;
     
     private UsuarioPublico usuarioLogado;
+    
+    private MensagemGlobal mensagemSelecionada;
     
     @Override
 	public void init() {
     	
-    	dialogo = Dialogo.getInstance();
+    	dialogo = DialogoPrivado.getInstance();
     	
     	userList.getItems().clear();
 		msgList.getItems().clear();
@@ -73,6 +80,15 @@ public class ControleCliente extends Controle{
     				dialogo.show(usuarioLogado, userList.getSelectionModel().getSelectedItem());
     			}
     	});
+    	
+    	msgList.setOnMouseClicked(e -> {
+    		if (e.getClickCount() > 1)
+    			if (msgList.getSelectionModel().getSelectedItem() != null) {
+    				cliente.protocoloGetVISU(msgList.getSelectionModel().getSelectedItem().getId());
+    				mensagemSelecionada = msgList.getSelectionModel().getSelectedItem();
+    			}
+    	});
+    	
     }
     
     @FXML
@@ -127,6 +143,26 @@ public class ControleCliente extends Controle{
     	if(msg.length() > 0) {
     		cliente.protocoloMSG(LocalDateTime.now(),tfdMensagem.getText());
     		tfdMensagem.setText("");
+    	}
+    }
+    
+    
+    /**
+     * Método responsável por tratar a validação de visualização de mensagens,
+     * através da entrada de mouse em um dos campos de IO de texto(Tela de visualização de
+     * mensagens e entrada para envio). Assim, quando um dos respectivos campos
+     * entra em foco, é sub-entendido que as mensagens foram visualizadas.
+     * @param event evento de entrada de mouse em componente.
+     */
+    @FXML
+    void focoEmCampoTexto(MouseEvent event) {
+    	for(MensagemGlobal msgg : msgList.getItems()) 
+    	{
+    		// a mensagem não foi enviada pelo cliente logado e ainda não foi visualizada
+    		if(!msgg.getLoginRemetente().equals(usuarioLogado.getLogin()) && msgg.getHoraVizualizado() == null) 
+    		{
+    			cliente.protocoloVISU(msgg.getId());
+    		}
     	}
     }
 
@@ -199,6 +235,44 @@ public class ControleCliente extends Controle{
 			}
 			else
 				notificacao.mensagemErro();
+		}else if(respostaServidor[0].equals("VISU"))
+		{
+			try{
+				Long mensagemId = Long.parseLong(respostaServidor[2]);
+				LocalDateTime horarioVisualizado = LocalDateTime.parse(respostaServidor[3],
+						DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm"));
+				if(respostaServidor[1].equals("02 SUC"))
+				{
+					
+					for(MensagemGlobal msgg : msgList.getItems()) {
+						if(msgg.getId() == mensagemId) {
+							msgList.getItems().remove(msgg);
+							msgg.setHoraVizualizado(horarioVisualizado);
+							msgList.getItems().add(msgg);
+						}
+					}
+				}else if(respostaServidor[1].equals("03 EXE")){
+					// caso ocorreu erro deve-se tentar novamente atualizar o estado da mensagem para visualizado.
+					cliente.protocoloVISU(mensagemId, horarioVisualizado);
+				}
+				else
+					notificacao.mensagemErro();
+			}catch(Exception e){ // se der exeção significa que o retorno n tem hora ou id de mensagem, ou seja é uma resposta para detelhes de visualiazção e não edição de estado de mensagem
+				if(respostaServidor[1].equals("02 SUC"))
+				{
+					System.err.println("confirmando que mensagem visualizada");
+					List<String> detalhes = new ArrayList<>();
+					for(int i = 2 ; i < respostaServidor.length; i ++)
+						detalhes.add(respostaServidor[i]);
+					System.err.println("detalhes retornado "+ detalhes);
+					if(mensagemSelecionada!= null)
+						DialogoDtlMsgPublica.getInstance().show(mensagemSelecionada.getNomeRemetente()+" / "+mensagemSelecionada.getLoginRemetente()
+							, mensagemSelecionada.getMensagem(), mensagemSelecionada.getHorarioEnvio(),detalhes);
+					mensagemSelecionada = null;
+				}
+				else
+					notificacao.mensagemErro();
+			}
 		}
 		else if(respostaServidor[0].equals("DIGIT/ 02 SUC")) {
 			if(respostaServidor.length < 3)

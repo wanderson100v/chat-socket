@@ -14,6 +14,7 @@ import javafx.scene.control.ListView;
 import javafx.scene.control.TextField;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
+import javafx.scene.input.MouseEvent;
 
 public class ControleChatPrivado extends Controle{
 
@@ -40,6 +41,8 @@ public class ControleChatPrivado extends Controle{
 
 	private UsuarioPublico remetente;
 	private UsuarioPublico destinatario;
+	private MensagemGlobal mensagemSelecionada;
+	
 
 	@Override
 	public void init() {
@@ -81,6 +84,26 @@ public class ControleChatPrivado extends Controle{
 			tfdMensagem.setText("");
 		}
 	}
+	
+	 /**
+     * Método responsável por tratar a validação de visualização de mensagens,
+     * através da entrada de mouse em um dos campos de IO de texto(Tela de visualização de
+     * mensagens e entrada para envio). Assim, quando um dos respectivos campos
+     * entra em foco, é sub-entendido que as mensagens foram visualizadas.
+     * @param event evento de entrada de mouse em componente.
+     */
+    
+	@FXML
+    void focoEmCampoTexto(MouseEvent event) {
+    	for(MensagemGlobal msgg : msgList.getItems()) 
+    	{
+    		// a mensagem não foi enviada pelo cliente logado e ainda não foi visualizada
+    		if(!msgg.getLoginRemetente().equals(remetente.getLogin()) && msgg.getHoraVizualizado() == null) 
+    		{
+    			cliente.protocoloVISU(msgg.getId());
+    		}
+    	}
+    }
 
 	@Override
 	public void update(Observable o, Object arg) {
@@ -119,6 +142,39 @@ public class ControleChatPrivado extends Controle{
 						lblStatus.setText("Offline");
 					}
 				}
+		}else if(respostaServidor[0].equals("VISU")) {
+			if(destinatario!= null) {
+				
+				Long mensagemId = Long.parseLong(respostaServidor[2]);
+				LocalDateTime horarioVisualizado = LocalDateTime.parse(respostaServidor[3],
+						DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm"));
+				if(respostaServidor[1].equals("02 SUC"))
+				{
+					for(MensagemGlobal msgg : msgList.getItems()) {
+						if(msgg.getId() == mensagemId) {
+							msgList.getItems().remove(msgg);
+							msgg.setHoraVizualizado(horarioVisualizado);
+							msgList.getItems().add(msgg);
+						}
+					}
+				}
+				else if(respostaServidor[1].equals("04 EFE"))
+				{
+					if(destinatario.getLogin().equals(respostaServidor[4]))
+					{
+						for(MensagemGlobal msg : msgList.getItems()) {
+							if(msg.getId() == mensagemId) {
+								msgList.getItems().remove(msg);
+								msg.setHoraVizualizado(horarioVisualizado);
+								msgList.getItems().add(msg);
+							}
+						}
+					}
+				}else if(respostaServidor[1].equals("03 EXE")){
+					// caso ocorreu erro deve-se tentar novamente atualizar o estado da mensagem para visualizado.
+					cliente.protocoloVISU(mensagemId, horarioVisualizado);
+				}
+			}
 		}
 		else if(respostaServidor[0].equals("DIGIT/ 02 SUC")) {
 			System.out.println(respostaServidor.length);
@@ -132,7 +188,7 @@ public class ControleChatPrivado extends Controle{
 						lblDigitando.setText("");
 		}
 	}
-
+	
 	public void setUsuarios(UsuarioPublico remetente, UsuarioPublico destinatario)
 	{
 		this.destinatario = destinatario;

@@ -18,7 +18,7 @@ public class Cliente extends Observable{
 	
 	public static final int porta = 17000;
 	
-	public static String ipServido;
+	public static String ipServidor;
 	
 	private EntradaRespostaServidor entrada;
 	
@@ -39,7 +39,7 @@ public class Cliente extends Observable{
 	
 	public void control() {
 		try {
-			this.socket = new Socket(ipServido,porta);
+			this.socket = new Socket(ipServidor,porta);
 			this.requisicaoServidor = new PrintStream(socket.getOutputStream(),false);
 			this.entrada.start();
 		} catch (IOException e) {
@@ -142,6 +142,26 @@ public class Cliente extends Observable{
 				+destinatario+"\r\n"
 				+"\r\n");
 	}
+
+	public void protocoloVISU(long mensagemID) {
+		protocoloVISU(mensagemID, LocalDateTime.now());
+	}
+	
+	public void protocoloVISU(long mensagemID, LocalDateTime horarioVisualizado) {
+		DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
+		requisicaoServidor.print(
+				"VISU\r\n"
+				+mensagemID+"\r\n"
+				+horarioVisualizado.format(formatter)+"\r\n"
+				+"\r\n");
+	}
+	
+	public void protocoloGetVISU(long mensagemId ) {
+		requisicaoServidor.print(
+				"GET/ VISU\r\n"
+				+mensagemId+"\r\n"
+				+"\r\n");
+	}
 	
 	public void protocoloVISU() {
 		
@@ -163,11 +183,13 @@ public class Cliente extends Observable{
 					String linha = respostaServidor.nextLine();
 					System.out.println(linha);
 					if(linha.equals("")) { 
+						System.err.println("protocolo chegou completo");
 						String[] resposta = protocoloCompleto.toString().split("\n");
 						for(String linhaProtocolo : resposta)
 							System.out.println(linhaProtocolo);
 						notificarTelasDeRespostaServidor(resposta);
 						protocoloCompleto = new StringBuffer();
+						System.err.println("pronto para novo protocolo");
 					}else 
 						protocoloCompleto.append(linha+"\n");
 				}
