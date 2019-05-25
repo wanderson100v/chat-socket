@@ -34,7 +34,6 @@ public class Destinado extends Entidade{
 
 	
 	public Destinado(Usuario destinatario, Mensagem mensagem) {
-		this.hVisu = hVisu;
 		this.destinatario = destinatario;
 		this.mensagem = mensagem;
 	}

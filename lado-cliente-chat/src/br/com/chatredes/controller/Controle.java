@@ -31,5 +31,8 @@ public abstract class Controle implements Initializable, Observer {
 	 * <p>Método responsavel por inicializar os componetes da tela</p>
 	 */
 	public abstract void init();
-	
+
+	public void removerObserver() {
+		cliente.deleteObserver(this);
+	}
 }

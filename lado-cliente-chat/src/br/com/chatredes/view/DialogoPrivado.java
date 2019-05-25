@@ -1,6 +1,7 @@
 package br.com.chatredes.view;
 
 import java.io.IOException;
+import java.util.Optional;
 
 import br.com.chatredes.controller.ControleChatPrivado;
 import br.com.chatredes.model.UsuarioPublico;
@@ -9,15 +10,15 @@ import javafx.scene.control.ButtonType;
 import javafx.scene.control.Dialog;
 import javafx.scene.layout.Pane;
 
-public class Dialogo {
+public class DialogoPrivado {
 
-	private static Dialogo instance;
+	private static DialogoPrivado instance;
 
 	private Dialog<ButtonType> dialog;
 	
 	private ControleChatPrivado privado;
 
-	private Dialogo() {
+	private DialogoPrivado() {
 		dialog = new Dialog<>();
 		dialog.setResizable(false);
 		dialog.setWidth(780);
@@ -37,9 +38,9 @@ public class Dialogo {
 		dialog.getDialogPane().getButtonTypes().addAll(ButtonType.CLOSE);
 	}	
 
-	public static Dialogo getInstance() {
+	public static DialogoPrivado getInstance() {
 		if(instance == null)
-			instance = new Dialogo();
+			instance = new DialogoPrivado();
 		return instance;
 	}
 	

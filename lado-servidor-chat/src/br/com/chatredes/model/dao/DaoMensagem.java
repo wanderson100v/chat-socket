@@ -23,7 +23,11 @@ public class DaoMensagem extends Dao<Mensagem> implements IDaoMensagem{
 	
 	public List<MensagemGlobal> buscarMensagensGlobais(String loginDestinatario) throws DaoException{
 		try {
-			return em.createQuery("select msgg from MensagemGlobal msgg where msgg.tipo = 0", MensagemGlobal.class)
+			return em.createQuery(
+					"select msgg from MensagemGlobal msgg "
+					+ "where msgg.loginDestinatario = :loginDestinatario "
+					+ "and msgg.tipo = 0", MensagemGlobal.class)
+					.setParameter("loginDestinatario",loginDestinatario)
 					.getResultList();
 		} catch (Exception e) {
 			e.printStackTrace();

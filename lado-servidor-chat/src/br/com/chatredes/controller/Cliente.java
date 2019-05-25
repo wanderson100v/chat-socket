@@ -21,6 +21,7 @@ import br.com.chatredes.model.pojo.Mensagem;
 import br.com.chatredes.model.pojo.Usuario;
 import br.com.chatredes.model.viewbanco.MensagemGlobal;
 import br.com.chatredes.model.viewbanco.UsuarioPublico;
+import br.com.chatredes.model.viewbanco.VisualizadoDetalhes;
 
 public class Cliente extends Observable implements Runnable {
 	
@@ -118,10 +119,13 @@ public class Cliente extends Observable implements Runnable {
 	public void protocoloLOGIN() {
 		protocolos.put("LOGIN",(String[] requisicao)->{
 			try {
+				
+				System.err.println("total de conexôes: "+clientesLogados.size() );
 				System.out.println("inciando protocolo de login do lado so servidor");
 				this.usuario = daoUsuario.login(requisicao[1], requisicao[2]);
 				if(this.usuario != null) {
-					clientesLogados.add(this);
+					if(!clientesLogados.contains(this))
+						clientesLogados.add(this);
 					System.out.println("Todos os clientes logados atÃ© o momento");
 					
 					String protocolo = 
@@ -181,6 +185,7 @@ public class Cliente extends Observable implements Runnable {
 	 * ou seja o cliente parar de enviar requisiï¿½ï¿½es (pode se observar essa aï¿½aï¿½ no mï¿½todo run desta mesma classe)
 	 */
 	public void operacoesDeSaida() {
+		System.err.println("Saindo do servdor");
 		this.usuario = null;
 		clientesLogados.remove(this);
 		servidor.notificarOuvintes(clientesLogados);
@@ -273,9 +278,10 @@ public class Cliente extends Observable implements Runnable {
 							daoDestinado.cadastrar(new Destinado(destinatario, mensagem));
 					}
 					
-					// avisar a todos os clientes ativos
+					
 					for(Cliente clienteReceptor : clientesLogados) {
-						if(clienteReceptor.usuario.getLogin().equals(requisicao[3]))
+						if(clienteReceptor.usuario != null && 
+								clienteReceptor.usuario.getLogin().equals(requisicao[3]))
 							clienteReceptor.respostasCliente.print(
 									"MSG PRIV\r\n"
 											+"04 EFE\r\n"
@@ -331,8 +337,9 @@ public class Cliente extends Observable implements Runnable {
 												+"\r\n"
 								);
 						
-						servidor.notificarOuvintes(global);
 					}
+					servidor.notificarOuvintes(new MensagemGlobal(mensagem.getId(),usuario.getNome(),
+							usuario.getLogin(), horarioEnvio, texto,""));
 					
 				} catch (DaoException e) {
 					e.printStackTrace();
@@ -352,13 +359,83 @@ public class Cliente extends Observable implements Runnable {
 	
 	public void protocoloVISU() {
 		protocolos.put("VISU",(String[] requisicao)->{
+			Long mensagemId = -1l;
+			LocalDateTime horarioVisualizado = null;
+			try {
+				System.err.println("inciando protocolo de atualizar estado de mensagem do lado do servidor");
+				mensagemId = Long.parseLong(requisicao[1]);
+				Mensagem mensagem = daoMensagem.buscarID(mensagemId);
+				Usuario destinatario = this.usuario;
+				Destinado destinado = daoDestinado.buscarPorDesginadoMsg(destinatario, mensagem);
+				horarioVisualizado = LocalDateTime.parse(requisicao[2],DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm"));
+				destinado.sethVisu(horarioVisualizado);
+				daoDestinado.editar(destinado);
+				System.err.println("\ntudo certo, enviando sucesso pro cliente");
+				respostasCliente.print(
+						"VISU\r\n"
+						+"02 SUC\r\n"
+						+mensagemId+"\r\n"
+						+horarioVisualizado.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm"))+"\r\n"
+						+"\r\n"
+						);
+				
+				// caso a mensagem seja privada
+				if(mensagem.getTipo().equals(TipoMensagem.PRIVADO)) 
+				{
+					System.err.println("----------------msg privaada mandando efetivação para ");
+					//procurar o cliente que a enviou
+					for(Cliente cliente : clientesLogados) 
+					{
+						// se estiver logado
+						if(cliente.usuario != null 
+								&& cliente.usuario.getLogin().equals(mensagem.getRemetente().getLogin())) 
+						{
+							System.err.println("----------------"+mensagem.getRemetente().getLogin());
+							//Avisar ao cliente que a mensagem dele foi visualizada
+							cliente.respostasCliente.print(
+									"VISU\r\n"
+									+"04 EFE\r\n"
+									+mensagemId+"\r\n"
+									+horarioVisualizado.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm"))+"\r\n"
+									+usuario.getLogin()+"\r\n"
+									+"\r\n"
+									);
+						}
+					}
+				}
+				
+			} catch (Exception e) {
+				respostasCliente.print(
+						"VISU\r\n"
+						+"03 EXE\r\n"
+						+mensagemId+"\r\n"
+						+horarioVisualizado.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm"))+"\r\n"
+						+"\r\n"
+						);
+			}
 			
 		});
 	}
 	
 	public void protocoloGetVISU() {
 		protocolos.put("GET/ VISU",(String[] requisicao)->{
-			
+			try {
+				Long mensagemId = Long.parseLong(requisicao[1]);
+				List<VisualizadoDetalhes> detalhes = daoDestinado.detelhesMensagem(mensagemId);
+				String protocoloReposta= 
+						"VISU\r\n"
+						+"02 SUC\r\n";
+				for(VisualizadoDetalhes vDetalhes : detalhes)
+					protocoloReposta+= (vDetalhes+"\r\n");
+				protocoloReposta += "\r\n";
+				respostasCliente.print(protocoloReposta);
+			}catch (Exception e) {
+				respostasCliente.print(
+						"VISU\r\n"
+						+"03 EXE\r\n"
+						+"\r\n"
+						);
+			}
 		});
 	}
 	
@@ -376,10 +453,12 @@ public class Cliente extends Observable implements Runnable {
 		return false;
 	}
 	
-	private void notificarTodosClientes(String resposta)
+	private static void notificarTodosClientes(String resposta)
 	{
-		for (Cliente c : clientesLogados)
-			c.respostasCliente.print(resposta);
+		for (Cliente c : clientesLogados) {
+			if(c.usuario != null)
+				c.respostasCliente.print(resposta);
+		}
 	}
 	
 	@Override

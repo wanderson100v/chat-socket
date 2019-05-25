@@ -58,13 +58,13 @@
                         </GridPane>
                      </children>
                   </VBox>
-                  <ListView fx:id="msgList" prefHeight="200.0" prefWidth="200.0">
+                  <ListView fx:id="msgList" onMouseEntered="#focoEmCampoTexto" prefHeight="200.0" prefWidth="200.0">
                      <tooltip>
                         <Tooltip text="Área de Mensagens" />
                      </tooltip></ListView>
                   <FlowPane prefHeight="80.0" prefWidth="560.0" styleClass="container-centro">
                      <children>
-                        <TextField fx:id="tfdMensagem" onKeyPressed="#inputAction" promptText="Digite uma Mensagem" styleClass="caixa-texto">
+                        <TextField fx:id="tfdMensagem" onKeyPressed="#inputAction" onMouseEntered="#focoEmCampoTexto" promptText="Digite uma Mensagem" styleClass="caixa-texto">
                            <tooltip>
                               <Tooltip text="Digite uma Mensagem" />
                            </tooltip>
