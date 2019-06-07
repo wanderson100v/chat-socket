@@ -22,6 +22,7 @@ import javafx.scene.control.TextField;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseEvent;
+import javafx.scene.input.ScrollEvent;
 import javafx.scene.layout.Pane;
 import jdk.nashorn.internal.runtime.ListAdapter;
 
@@ -63,8 +64,22 @@ public class ControleCliente extends Controle{
     
     private MensagemGlobal mensagemSelecionada;
     
+    private boolean scrollUser = true, scrollMsg = true;
+    
     @Override
 	public void init() {
+    	
+    	msgList.addEventFilter(ScrollEvent.ANY, (e) ->{ //get every scroll event
+    	      if(e.getTextDeltaY() > 0){ //set Scroll event to false when the user scrolls up
+    	        scrollMsg = false;
+    	      }
+    	    });
+    	
+    	userList.addEventFilter(ScrollEvent.ANY, (e) ->{ //get every scroll event
+    	      if(e.getTextDeltaY() > 0){ //set Scroll event to false when the user scrolls up
+    	        scrollUser = false;
+    	      }
+    	    });
     	
     	dialogo = DialogoPrivado.getInstance();
     	
@@ -148,17 +163,17 @@ public class ControleCliente extends Controle{
     
     
     /**
-     * Método responsável por tratar a validação de visualização de mensagens,
-     * através da entrada de mouse em um dos campos de IO de texto(Tela de visualização de
+     * Mï¿½todo responsï¿½vel por tratar a validaï¿½ï¿½o de visualizaï¿½ï¿½o de mensagens,
+     * atravï¿½s da entrada de mouse em um dos campos de IO de texto(Tela de visualizaï¿½ï¿½o de
      * mensagens e entrada para envio). Assim, quando um dos respectivos campos
-     * entra em foco, é sub-entendido que as mensagens foram visualizadas.
+     * entra em foco, ï¿½ sub-entendido que as mensagens foram visualizadas.
      * @param event evento de entrada de mouse em componente.
      */
     @FXML
     void focoEmCampoTexto(MouseEvent event) {
     	for(MensagemGlobal msgg : msgList.getItems()) 
     	{
-    		// a mensagem não foi enviada pelo cliente logado e ainda não foi visualizada
+    		// a mensagem nï¿½o foi enviada pelo cliente logado e ainda nï¿½o foi visualizada
     		if(!msgg.getLoginRemetente().equals(usuarioLogado.getLogin()) && msgg.getHoraVizualizado() == null) 
     		{
     			cliente.protocoloVISU(msgg.getId());
@@ -184,7 +199,7 @@ public class ControleCliente extends Controle{
 							p.setEstado("online");
 							p.setUltimoLogin(LocalDateTime.now());
 							userList.getItems().add(p);
-							System.out.println("Estado do Usuario Atualizado: "+p.getNome());							
+							System.out.println("Estado do Usuario Atualizado: "+p.getNome());
 						}
 					}
 				} catch (Exception e) {
@@ -218,8 +233,10 @@ public class ControleCliente extends Controle{
     		if(respostaServidor[1].equals("02 SUC"))
 			{
     			for(int i = 2; i<respostaServidor.length ; i++) {
-    				userList.getItems().add(converterStringEmUsuarioPublico(respostaServidor[i]));
+    				userList.getItems().add(converterStringEmUsuarioPublico(respostaServidor[i]));    				
     			}
+    			if(scrollUser)
+    				userList.scrollTo(userList.getItems().size() -1 );
 			}
 			else
 				notificacao.mensagemErro();
@@ -233,6 +250,8 @@ public class ControleCliente extends Controle{
 				System.out.println("recebi mensagem");
 				msgList.getItems().add(converterStringEmMensagemGlobal(respostaServidor[3]));
 			}
+			if(scrollMsg)
+		        msgList.scrollTo(msgList.getItems().size() -1 );
 			else
 				notificacao.mensagemErro();
 		}else if(respostaServidor[0].equals("VISU"))
@@ -257,7 +276,7 @@ public class ControleCliente extends Controle{
 				}
 				else
 					notificacao.mensagemErro();
-			}catch(Exception e){ // se der exeção significa que o retorno n tem hora ou id de mensagem, ou seja é uma resposta para detelhes de visualiazção e não edição de estado de mensagem
+			}catch(Exception e){ // se der exeï¿½ï¿½o significa que o retorno n tem hora ou id de mensagem, ou seja ï¿½ uma resposta para detelhes de visualiazï¿½ï¿½o e nï¿½o ediï¿½ï¿½o de estado de mensagem
 				if(respostaServidor[1].equals("02 SUC"))
 				{
 					System.err.println("confirmando que mensagem visualizada");

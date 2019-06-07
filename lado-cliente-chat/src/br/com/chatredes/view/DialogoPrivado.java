@@ -9,6 +9,7 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.Dialog;
 import javafx.scene.layout.Pane;
+import javafx.stage.Modality;
 
 public class DialogoPrivado {
 
@@ -23,6 +24,7 @@ public class DialogoPrivado {
 		dialog.setResizable(false);
 		dialog.setWidth(780);
 		dialog.setHeight(500);
+		dialog.initModality(Modality.NONE);
 		try {
 			
 			FXMLLoader loader = new FXMLLoader(getClass().getClassLoader().getResource("br/com/chatredes/view/ChatPrivado.fxml"));

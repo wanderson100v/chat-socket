@@ -15,6 +15,7 @@ import javafx.scene.control.TextField;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseEvent;
+import javafx.scene.input.ScrollEvent;
 
 public class ControleChatPrivado extends Controle{
 
@@ -43,10 +44,17 @@ public class ControleChatPrivado extends Controle{
 	private UsuarioPublico destinatario;
 	private MensagemGlobal mensagemSelecionada;
 	
-
+	private boolean scrollMsg = true;
+	
 	@Override
 	public void init() {
 
+		msgList.addEventFilter(ScrollEvent.ANY, (e) ->{ //get every scroll event
+  	      if(e.getTextDeltaY() > 0){ //set Scroll event to false when the user scrolls up
+  	        scrollMsg = false;
+  	      }
+  	    });
+		
 	}
 
 	@FXML
@@ -86,10 +94,10 @@ public class ControleChatPrivado extends Controle{
 	}
 	
 	 /**
-     * Método responsável por tratar a validação de visualização de mensagens,
-     * através da entrada de mouse em um dos campos de IO de texto(Tela de visualização de
+     * Mï¿½todo responsï¿½vel por tratar a validaï¿½ï¿½o de visualizaï¿½ï¿½o de mensagens,
+     * atravï¿½s da entrada de mouse em um dos campos de IO de texto(Tela de visualizaï¿½ï¿½o de
      * mensagens e entrada para envio). Assim, quando um dos respectivos campos
-     * entra em foco, é sub-entendido que as mensagens foram visualizadas.
+     * entra em foco, ï¿½ sub-entendido que as mensagens foram visualizadas.
      * @param event evento de entrada de mouse em componente.
      */
     
@@ -97,7 +105,7 @@ public class ControleChatPrivado extends Controle{
     void focoEmCampoTexto(MouseEvent event) {
     	for(MensagemGlobal msgg : msgList.getItems()) 
     	{
-    		// a mensagem não foi enviada pelo cliente logado e ainda não foi visualizada
+    		// a mensagem nï¿½o foi enviada pelo cliente logado e ainda nï¿½o foi visualizada
     		if(!msgg.getLoginRemetente().equals(remetente.getLogin()) && msgg.getHoraVizualizado() == null) 
     		{
     			cliente.protocoloVISU(msgg.getId());
@@ -121,6 +129,9 @@ public class ControleChatPrivado extends Controle{
 			}
 			else
 				notificacao.mensagemErro();
+			
+			if(scrollMsg)
+		        msgList.scrollTo(msgList.getItems().size() -1 );
 		}
 
 		else if(respostaServidor[0].equals("LOGIN")){
@@ -157,6 +168,8 @@ public class ControleChatPrivado extends Controle{
 							msgList.getItems().add(msgg);
 						}
 					}
+					if(scrollMsg)
+				        msgList.scrollTo(msgList.getItems().size() -1 );
 				}
 				else if(respostaServidor[1].equals("04 EFE"))
 				{
@@ -169,6 +182,8 @@ public class ControleChatPrivado extends Controle{
 								msgList.getItems().add(msg);
 							}
 						}
+						if(scrollMsg)
+					        msgList.scrollTo(msgList.getItems().size() -1 );
 					}
 				}else if(respostaServidor[1].equals("03 EXE")){
 					// caso ocorreu erro deve-se tentar novamente atualizar o estado da mensagem para visualizado.
@@ -183,6 +198,11 @@ public class ControleChatPrivado extends Controle{
 					lblDigitando.setText(respostaServidor[1]+" estÃ¡ digitando");
 		}
 		else if(respostaServidor[0].equals("NDIGIT/ 02 SUC")) {
+			
+			for (String string : respostaServidor) {
+				System.out.println(string);
+			}
+			
 			if(respostaServidor.length > 2)
 				if(remetente.getLogin().equals(respostaServidor[1]) || destinatario.getLogin().equals(respostaServidor[2]))
 						lblDigitando.setText("");

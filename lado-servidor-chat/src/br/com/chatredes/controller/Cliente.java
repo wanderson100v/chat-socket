@@ -399,9 +399,9 @@ public class Cliente extends Observable implements Runnable {
 						cliente.respostasCliente.print(
 								"NDIGIT/ 02 SUC\r\n"
 								+usuario.getLogin()+"\r\n"
-								+requisicao[2]+"\r\n"
+								+requisicao[1]+"\r\n"
 								+"\r\n");
-						break;
+//						break;
 					}
 				}
 				respostasCliente.print(
